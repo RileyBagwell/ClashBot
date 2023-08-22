@@ -146,7 +146,7 @@ async def cmd_team(ctx, region, name):
     team = reqHandler.getTeamByTeamId(region, teamIds[0])  # Get the soonest team's information
     for player in team.players:
         tempSumm = reqHandler.getSummonerById(region, player.summonerId)
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(region, summoner.id)
+        leagueEntry = reqHandler.getLeagueEntryBySummonerId(region, player.summoner.id)
         emBuilder = EmbedBuilder()
         embed = emBuilder.buildSummonerEmbed(ctx, region, tempSumm, leagueEntry)
         await ctx.send(content="", embed=embed)
