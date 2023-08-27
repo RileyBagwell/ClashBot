@@ -8,7 +8,7 @@ class EmbedBuilder:
         pass
 
 
-    def buildSummonerEmbed(self, ctx, region, summoner, leagueEntry):
+    def buildSummonerEmbed(self, ctx, regionObj, summoner, leagueEntry):
         """Returns an embed for a given summoner."""
         dHandler = DDragonRequestHandler()
         iconURL = dHandler.getProfileIconURL(summoner.profileIconId)
@@ -30,7 +30,7 @@ class EmbedBuilder:
             embed.add_field(name="Winrate", value=str(leagueEntry[1].winrate()) + f"% ({leagueEntry[1].totalGames()} games)", inline=True)
         else:
             embed.add_field(name="Winrate", value="0% (Unranked)", inline=True)
-        embed.add_field(name="", value=f"[u.gg Profile](https://u.gg/lol/profile/{region}/{summoner.name.replace(' ', '')}/overview)",
+        embed.add_field(name="", value=f"[u.gg Profile](https://u.gg/lol/profile/{regionObj.region}/{summoner.name.replace(' ', '')}/overview)",
                         inline=False)
         return embed
 
