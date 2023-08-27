@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+from src.league.Region import Region
 from src.utils.EmbedBuilder import EmbedBuilder
 from src.utils.RiotRequestHandler import RiotRequestHandler
 
@@ -19,49 +20,15 @@ reqHandler = RiotRequestHandler()
 bot_token = os.getenv('BOT_KEY')
 
 
-def verifyRegion(region):
-    """Returns true if the given region is valid. Otherwise, returns false. Call this after correctRegion()."""
-    regions = {'br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2', 'tw2', 'vn2'}
-    region = region.lower()
-    if region in regions:
-        return True
-    return False
-
-
-def correctRegion(region):
-    """Attempt to correct a given region to work with API. i.e. 'na' -> 'na1'"""
-    region = region.lower()
-    if region == 'na':
-        return 'na1'
-    if region == 'br':
-        return 'br1'
-    if region == 'lan':
-        return 'la1'
-    if region == 'las':
-        return 'la2'
-    if region == 'eune':
-        return 'eun1'
-    if region == 'euw':
-        return 'euw1'
-    if region == "tr":
-        return 'tr1'
-    if region == 'jp':
-        return 'jp1'
-    if region == 'oce':
-        return 'oc1'
-    return region
-
-
-async def validateSummoner(ctx, region, name):
-    """Validates that a summoner exists, and if not, sends a message that it does not exist. Returns the summoner, or
-        None if the summoner does not exist."""
-    region = correctRegion(region)
-    if verifyRegion(region) is False:
+async def getSummoner(ctx, regionObj, name):
+    """Obtains a summoner from the API. If it exists, returns the summoner as a Summoner object. If not, returns None
+    and sends a message saying it was not found. 'region' parameter should be a Region object."""
+    if regionObj.isValid is False:
         await ctx.send("Please choose a valid region!")
         return None
-    summoner = reqHandler.getSummonerByName(region, name)
+    summoner = reqHandler.getSummonerByName(regionObj, name)
     if summoner is None:
-        await ctx.send(f'Summoner *{name}* in region *{region}* not found!')
+        await ctx.send(f'Summoner *{name}* in region *{regionObj.region}* not found!')
         return None
     return summoner
 
@@ -88,12 +55,12 @@ async def cmd_commands(ctx):
 @bot.command(name="summoner", description="Pull up information of a summoner.")
 async def cmd_summoner(ctx, region, name):
     """Sends information for a summoner given a region and a name."""
-    region = correctRegion(region)
-    summoner = await validateSummoner(ctx, region, name)
+    regionObj = Region(region)
+    summoner = await getSummoner(ctx, regionObj, name)
     if summoner is not None:
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(region, summoner.id)
+        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, summoner.id)
         emBuilder = EmbedBuilder()
-        embed = emBuilder.buildSummonerEmbed(ctx, region, summoner, leagueEntry)
+        embed = emBuilder.buildSummonerEmbed(ctx, regionObj, summoner, leagueEntry)
         await ctx.send(content="", embed=embed)
     return
 
@@ -105,18 +72,13 @@ async def cmd_matches(ctx, region, name, numMatches):
     if int(numMatches) < 1 or int(numMatches) > 100:
         await ctx.send("Please enter a number between 1 and 100 (inclusive)!")
         return
-    # Check for a valid region
-    region = correctRegion(region)
-    if verifyRegion(region) is False:
-        await ctx.send("Please choose a valid region!")
-        return
 
-    # Request summoner for puuid
-    puuid = reqHandler.getPuuidByName(region, name)
-    if puuid is None:
-        await ctx.send(f'Summoner *{name}* in region *{region}* not found!')
+    regionObj = Region(region)
+    summoner = await getSummoner(ctx, regionObj, name)
+    if summoner is None:
         return
-    matches = reqHandler.getMatchesByPuuid(region, puuid, numMatches)
+    puuid = summoner.puuid
+    matches = reqHandler.getMatchesByPuuid(regionObj, puuid, numMatches)
     if matches is None:
         await ctx.send(f'No matches found!')
         return
@@ -135,33 +97,34 @@ async def cmd_match(ctx, matchId):
 @bot.command(name="team", description="Look up a team given a player's name")
 async def cmd_team(ctx, region, name):
     """Sends information about a summoner's clash team given their region and name."""
-    summoner = await validateSummoner(ctx, region, name)
-    region = correctRegion(region)
+    regionObj = Region(region)
+    summoner = await getSummoner(ctx, regionObj, name)
     if summoner is None:  # Exit function if summoner is not found, error messages already sent
         return
-    teamIds = reqHandler.getTeamIdsBySummonerId(region, summoner.id)  # Obtain teamIds
+    teamIds = reqHandler.getTeamIdsBySummonerId(regionObj, summoner.id)  # Obtain teamIds
     if len(teamIds) == 0:  # Check if summoner is in a team
         await ctx.send(f'Summoner {summoner.name} is not currently in a clash team.')
         return
-    team = reqHandler.getTeamByTeamId(region, teamIds[0])  # Get the soonest team's information
+    team = reqHandler.getTeamByTeamId(regionObj, teamIds[0])  # Get the soonest team's information
     for player in team.players:
-        tempSumm = reqHandler.getSummonerById(region, player.summonerId)
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(region, player.summoner.id)
+        tempSumm = reqHandler.getSummonerById(regionObj, player.summonerId)
+        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, player.summoner.id)
         emBuilder = EmbedBuilder()
-        embed = emBuilder.buildSummonerEmbed(ctx, region, tempSumm, leagueEntry)
+        embed = emBuilder.buildSummonerEmbed(ctx, regionObj, tempSumm, leagueEntry)
         await ctx.send(content="", embed=embed)
 
 
 @bot.command(name="tournaments", description="Return all active or upcoming tournaments.")
 async def cmd_tournaments(ctx, region):
     """Sends all active or upcoming tournaments given a region."""
-    region = correctRegion(region)
-    if verifyRegion(region) is False:
+    regionObj = Region(region)
+    if regionObj.isValid is False:
         await ctx.send("Please choose a valid region!")
         return
-    tournaments = reqHandler.getTournaments(region)
+    tournaments = reqHandler.getTournaments(regionObj)
     if len(tournaments) == 0:
         await ctx.send("No upcoming tournaments.")
+        return
     str = ''
     for obj in tournaments:
         str += obj.nameKey + ' '
