@@ -5,15 +5,15 @@ from src.league.clash.Player import Player
 
 
 class Team:
-    def __init__(self, TeamDto):
-        self.id = TeamDto['id']
-        self.tournamentId = TeamDto['tournamentId']
-        self.name = TeamDto['name']
-        self.iconId = TeamDto['iconId']
-        self.tier = TeamDto['tier']
-        self.captain = TeamDto['captain']
-        self.abbreviation = TeamDto['abbreviation']
-        self.players = self.initPlayers(TeamDto['players'])
+    def __init__(self, team_dto):
+        self.id = team_dto['id']
+        self.tournament_id = team_dto['tournamentId']
+        self.name = team_dto['name']
+        self.icon_id = team_dto['iconId']
+        self.tier = team_dto['tier']
+        self.captain = team_dto['captain']
+        self.abbreviation = team_dto['abbreviation']
+        self.players = self.init_players(team_dto['players'])
 
 
     def __str__(self):
@@ -21,8 +21,8 @@ class Team:
                 f'Tier: {self.tier}\n')
 
 
-    def initPlayers(self, playersList):
+    def init_players(self, players_list):
         players = []
-        for obj in playersList:
+        for obj in players_list:
             players.append(Player(obj, self.id))
         return players

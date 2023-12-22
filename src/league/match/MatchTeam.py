@@ -2,16 +2,16 @@ from src.league.match.Ban import Ban
 from src.league.match.Objectives import Objectives
 
 
-def initBans(bansList):
+def init_bans(bans_list):
     bans = []
-    for obj in bansList:
+    for obj in bans_list:
         bans.append(Ban(obj))
     return bans
 
 
 class MatchTeam:
-    def __init__(self, TeamDto):
-        self.bans = initBans(TeamDto['bans'])
-        self.objectives = Objectives(TeamDto['objectives'])
-        self.teamId = TeamDto['teamId']
-        self.win = TeamDto['win']
+    def __init__(self, team_dto):
+        self.bans = init_bans(team_dto['bans'])
+        self.objectives = Objectives(team_dto['objectives'])
+        self.team_id = team_dto['teamId']
+        self.win = team_dto['win']

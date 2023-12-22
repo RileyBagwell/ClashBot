@@ -2,10 +2,10 @@ from src.league.match.Objective import Objective
 
 
 class Objectives:
-    def __init__(self, ObjectivesDto):
-        self.baron = Objective(ObjectivesDto['baron'])
-        self.champion = Objective(ObjectivesDto['champion'])
-        self.dragon = Objective(ObjectivesDto['dragon'])
-        self.inhibitor = Objective(ObjectivesDto['inhibitor'])
-        self.riftHerald = Objective(ObjectivesDto['riftHerald'])
-        self.tower = Objective(ObjectivesDto['tower'])
+    def __init__(self, objectives_dto):
+        self.baron = Objective(objectives_dto['baron'])
+        self.champion = Objective(objectives_dto['champion'])
+        self.dragon = Objective(objectives_dto['dragon'])
+        self.inhibitor = Objective(objectives_dto['inhibitor'])
+        self.rift_herald = Objective(objectives_dto['riftHerald'])
+        self.tower = Objective(objectives_dto['tower'])

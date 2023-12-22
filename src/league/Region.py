@@ -5,15 +5,15 @@
 
 
 class Region:
-    def __init__(self, tempRegion):
+    def __init__(self, temp_region):
         """Attempts to correct the given region, and then verifies that it is valid."""
-        self.region = tempRegion
-        self.region = self.correctRegion()  # Initialize self.region
-        self.route = self.rerouteRegion()  # Find the route value
-        self.isValid = self.verifyRegion()  # Verify if it is a valid region
+        self.region = temp_region
+        self.region = self.correct_region()  # Initialize self.region
+        self.route = self.reroute_region()  # Find the route value
+        self.is_valid = self.verify_region()  # Verify if it is a valid region
 
 
-    def verifyRegion(self):
+    def verify_region(self):
         """Returns true if the given region is valid. Otherwise, returns false. Call this after correctRegion()."""
         regions = {'br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru', 'ph2', 'sg2', 'th2',
                    'tw2', 'vn2'}
@@ -23,31 +23,31 @@ class Region:
         return False
 
 
-    def correctRegion(self):
+    def correct_region(self):
         """Attempt to correct a given region to work with API. i.e. 'na' -> 'na1'"""
-        tempRegion = self.region.lower()
-        if tempRegion == 'na':
+        temp_region = self.region.lower()
+        if temp_region == 'na':
             return 'na1'
-        if tempRegion == 'br':
+        if temp_region == 'br':
             return 'br1'
-        if tempRegion == 'lan':
+        if temp_region == 'lan':
             return 'la1'
-        if tempRegion == 'las':
+        if temp_region == 'las':
             return 'la2'
-        if tempRegion == 'eune':
+        if temp_region == 'eune':
             return 'eun1'
-        if tempRegion == 'euw':
+        if temp_region == 'euw':
             return 'euw1'
-        if tempRegion == "tr":
+        if temp_region == "tr":
             return 'tr1'
-        if tempRegion == 'jp':
+        if temp_region == 'jp':
             return 'jp1'
-        if tempRegion == 'oce':
+        if temp_region == 'oce':
             return 'oc1'
-        return tempRegion
+        return temp_region
 
 
-    def rerouteRegion(self):
+    def reroute_region(self):
         """Reroute a given region. Ex: 'na1' -> 'americas'"""
         americas = {'na1', 'br1', 'la1', 'la2'}
         europe = {'euw1', 'eun1', 'tr1', 'ru'}
