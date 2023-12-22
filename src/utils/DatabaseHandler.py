@@ -19,7 +19,7 @@ class DatabaseHandler:
             'database': os.getenv('DB_BASE')}
 
 
-    def getConnection(self):
+    def get_connection(self):
         """Attempts to connect to the MySQL server and returns a MySQLConnection object if successful."""
         try:
             connection = mysql.connector.connect(**self.config)  # Create connection with the server
@@ -34,11 +34,11 @@ class DatabaseHandler:
             return connection
 
 
-    def addMatches(self, matchList):
+    def add_matches(self, match_list):
         """Adds matches to the database given a list of match json objects."""
-        connection = self.getConnection()
+        connection = self.get_connection()
         cursor = connection.cursor()
-        print(f"Matches to add: {len(matchList)}")
+        print(f"Matches to add: {len(match_list)}")
         matches_added = 0
 
         # Add match information to database
@@ -65,7 +65,7 @@ class DatabaseHandler:
             ",%s,%s,%s,%s,%s,%s,%s,%s,%s)")
         insert_match_data = []
         insert_participant_data = []
-        for match_data in matchList:
+        for match_data in match_list:
             if match_data is None:
                 break
             matches_added += 1
@@ -129,59 +129,51 @@ class DatabaseHandler:
         connection.close()
 
 
-    def validateMatches(self, matchIdList):
+    def validate_matches(self, match_id_list):
         """Returns an updated list of matchIds that are not present in the database from a given list of matchIds."""
-        connection = self.getConnection()
+        connection = self.get_connection()
         cursor = connection.cursor()
-        lookFor = ', '.join([f"'{element}'" for element in matchIdList])
-        cursor.execute(f"SELECT matchId FROM matches WHERE matchId IN ({lookFor});")
-        dbIdList = [row[0] for row in cursor.fetchall()]
+        look_for = ', '.join([f"'{element}'" for element in match_id_list])
+        cursor.execute(f"SELECT matchId FROM matches WHERE matchId IN ({look_for});")
+        db_id_list = [row[0] for row in cursor.fetchall()]
         connection.close()
-        return list(set(matchIdList) - set(dbIdList))
+        return list(set(match_id_list) - set(db_id_list))
 
 
-    def updateSummonersMatches(self, regionObj, puuid):
+    def update_summoners_matches(self, region_obj, puuid):
         """Given a summoner's region and puuid, checks if the database is up-to-date with all the summoner's matches.
             If all matches were checked, returns 1. Otherwise, returns 0."""
-        connection = self.getConnection()
+        connection = self.get_connection()
         cursor = connection.cursor()
-        reqHandler = RiotRequestHandler()
-        matchIdList = reqHandler.getMatchIdListByPuuid(regionObj, puuid, 100)
+        req_handler = RiotRequestHandler()
+        match_id_list = req_handler.get_match_id_list_by_puuid(region_obj, puuid, 100)
         # Validate that matches were found
-        if len(matchIdList) == 0:
+        if len(match_id_list) == 0:
             print("updateSummonerMatches(): No matches found from player.")
             return
         # Find matchIds that are not already in database
-        lookFor = ""
-        for matchId in matchIdList:
-            lookFor += f"'{matchId}', "
-        lookFor = lookFor[:-2]  # Remove trailing ', '
-        cursor.execute(f"SELECT matchId FROM matches WHERE matchId IN ({lookFor});")
+        look_for = ""
+        for match_id in match_id_list:
+            look_for += f"'{match_id}', "
+        look_for = look_for[:-2]  # Remove trailing ', '
+        cursor.execute(f"SELECT match_id FROM matches WHERE match_id IN ({look_for});")
         row = cursor.fetchall()
-        matchesInDb = str(row)
-        matchesToAdd = []
-        for matchId in matchIdList:
-            if matchesInDb.find(matchId) == -1:
-                matchesToAdd.append(matchId)
-        self.addMatches(regionObj, matchesToAdd)
+        matches_in_db = str(row)
+        matches_to_add = []
+        for match_id in match_id_list:
+            if matches_in_db.find(match_id) == -1:
+                matches_to_add.append(match_id)
+        self.add_matches(region_obj, matches_to_add)
         return 1
 
 
-    def getMatchByMatchId(self, matchId, puuid):
+    def get_match_by_match_id(self, match_id, puuid):
         """Returns a Match object from the database if it exists."""
         connection = mysql.connector.connect(**self.config)
-        select_query = f"""SELECT p.kills FROM Participant p JOIN Info i ON p.matchId = i.matchId WHERE p.puuid = '{puuid}' AND i.matchId = '{matchId}';"""
+        select_query = f"""SELECT p.kills FROM Participant p JOIN Info i ON p.matchId = i.matchId WHERE p.puuid = '{puuid}' AND i.matchId = '{match_id}';"""
         with connection.cursor() as cursor:
             cursor.execute(select_query)
             result = cursor.fetchall()
         for row in result:
             print(row)
         connection.close()
-
-
-dbHandler = DatabaseHandler()
-reqHandler = RiotRequestHandler()
-#match = reqHandler.getMatchByMatchId('na1', 'NA1_4758776993')
-#dbHandler.addMatch(match)
-#match = reqHandler.getMatchByMatchId('na1', 'NA1_4754967858')
-#dbHandler.addMatch(match)

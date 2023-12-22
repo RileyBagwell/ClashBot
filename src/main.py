@@ -29,10 +29,10 @@ bot_token = os.getenv('BOT_KEY')
 async def getSummoner(ctx, regionObj, name):
     """Obtains a summoner from the API. If it exists, returns the summoner as a Summoner object. If not, returns None
     and sends a message saying it was not found. 'region' parameter should be a Region object."""
-    if regionObj.isValid is False:
+    if regionObj.is_valid is False:
         await ctx.send("Please choose a valid region!")
         return None
-    summoner = reqHandler.getSummonerByName(regionObj, name)
+    summoner = reqHandler.get_summoner_by_name(regionObj, name)
     if summoner is None:
         await ctx.send(f'Summoner *{name}* in region *{regionObj.region}* not found!')
         return None
@@ -54,11 +54,11 @@ async def cmd_update(ctx, region, name):
     """Updates the database if necessary for matches from the given user, and if they're in a team, their team members."""
     regionObj = Region(region)
     summoner = await getSummoner(ctx, regionObj, name)
-    matchIdList = reqHandler.getMatchIdListByPuuid(regionObj, summoner.puuid, 100)
-    matchesToAdd = dbHandler.validateMatches(matchIdList)
+    matchIdList = reqHandler.get_match_id_list_by_puuid(regionObj, summoner.puuid, 100)
+    matchesToAdd = dbHandler.validate_matches(matchIdList)
     matchList = []  # Empty list to store match data
-    await reqHandler.getMatchesFromList(regionObj, matchesToAdd, matchList)
-    dbHandler.addMatches(matchList)
+    await reqHandler.get_matches_from_list(regionObj, matchesToAdd, matchList)
+    dbHandler.add_matches(matchList)
     await ctx.send('Done updating!')
 
 
@@ -80,9 +80,9 @@ async def cmd_summoner(ctx, region, name):
     regionObj = Region(region)
     summoner = await getSummoner(ctx, regionObj, name)
     if summoner is not None:
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, summoner.id)
+        leagueEntry = reqHandler.get_league_entry_by_summoner_id(regionObj, summoner.id)
         emBuilder = EmbedBuilder()
-        embed = emBuilder.buildSummonerEmbed(ctx, regionObj, summoner, leagueEntry)
+        embed = emBuilder.build_summoner_embed(ctx, regionObj, summoner, leagueEntry)
         await ctx.send(content="", embed=embed)
     return
 
@@ -100,7 +100,7 @@ async def cmd_matches(ctx, region, name, numMatches):
     if summoner is None:
         return
     puuid = summoner.puuid
-    matches = reqHandler.getMatchIdListByPuuid(regionObj, puuid, numMatches)
+    matches = reqHandler.get_match_id_list_by_puuid(regionObj, puuid, numMatches)
     if matches is None:
         await ctx.send(f'No matches found!')
         return
@@ -124,17 +124,17 @@ async def cmd_team(ctx, region, name):
     summoner = await getSummoner(ctx, regionObj, name)
     if summoner is None:  # Exit function if summoner is not found, error messages already sent
         return
-    teamIds = reqHandler.getTeamIdsBySummonerId(regionObj, summoner.id)  # Obtain teamIds
+    teamIds = reqHandler.get_team_ids_by_summoner_id(regionObj, summoner.id)  # Obtain teamIds
     if len(teamIds) == 0:  # Check if summoner is not in a team
         await ctx.send(f'Summoner {summoner.name} is not currently in a clash team.')
         return
-    team = reqHandler.getTeamByTeamId(regionObj, teamIds[0])  # Get the soonest team's information
+    team = reqHandler.get_team_by_team_id(regionObj, teamIds[0])  # Get the soonest team's information
     await init_message.edit(content="Obtaining team's information...")
     for player in team.players:
-        tempSumm = reqHandler.getSummonerById(regionObj, player.summonerId)
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, player.summonerId)
-        print(leagueEntry[0].totalGames())
-        embed = emBuilder.buildSummonerEmbed(ctx, regionObj, tempSumm, leagueEntry)
+        tempSumm = reqHandler.get_summoner_by_id(regionObj, player.summoner_id)
+        leagueEntry = reqHandler.get_league_entry_by_summoner_id(regionObj, player.summoner_id)
+        print(leagueEntry[0].total_games())
+        embed = emBuilder.build_summoner_embed(ctx, regionObj, tempSumm, leagueEntry)
         await ctx.send(content="", embed=embed)
     await init_message.edit("Team information displayed below.")
 
@@ -143,16 +143,16 @@ async def cmd_team(ctx, region, name):
 async def cmd_tournaments(ctx, region):
     """Sends all active or upcoming tournaments given a region."""
     regionObj = Region(region)
-    if regionObj.isValid is False:
+    if regionObj.is_valid is False:
         await ctx.send("Please choose a valid region!")
         return
-    tournaments = reqHandler.getTournaments(regionObj)
+    tournaments = reqHandler.get_tournaments(regionObj)
     if len(tournaments) == 0:
         await ctx.send("No upcoming tournaments.")
         return
     str = ''
     for obj in tournaments:
-        str += obj.nameKey + ' '
+        str += obj.name_key + ' '
     await ctx.send(str)
 
 
