@@ -1,6 +1,7 @@
 class Summoner:
-    def __init__(self, SummonerDTO):
-        """Create a Summoner object given a SummonerDTO from the API"""
+    def __init__(self, SummonerDTO, region):
+        """Create a Summoner object given a SummonerDTO and Region object from the API"""
+        self.region = region
         self.accountId = SummonerDTO['accountId']
         self.profileIconId = SummonerDTO['profileIconId']
         self.revisionDate = SummonerDTO['revisionDate']

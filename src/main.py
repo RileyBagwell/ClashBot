@@ -1,9 +1,13 @@
+import asyncio
 import os
+import time
+
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
 from src.league.Region import Region
+from src.utils.DatabaseHandler import DatabaseHandler
 from src.utils.EmbedBuilder import EmbedBuilder
 from src.utils.RiotRequestHandler import RiotRequestHandler
 
@@ -17,6 +21,8 @@ bot = commands.Bot(command_prefix=prefix, intents=intents)
 # Other set up tasks
 load_dotenv()
 reqHandler = RiotRequestHandler()
+dbHandler = DatabaseHandler()
+emBuilder = EmbedBuilder()
 bot_token = os.getenv('BOT_KEY')
 
 
@@ -35,9 +41,25 @@ async def getSummoner(ctx, regionObj, name):
 
 @bot.command()
 async def test(ctx):
-    print('test triggered')
-    obj = reqHandler.getLeagueEntryBySummonerId('na1', 'Blockerw1z')
-    await ctx.send(obj[0].leagueId)
+    message = await ctx.send("Doing first task...")
+    time.sleep(2)
+    await message.edit(content="Doing second task...")
+    time.sleep(2)
+    await message.edit(content="Done!")
+
+
+
+@bot.command(name="update", description="Update the database to show new matches.")
+async def cmd_update(ctx, region, name):
+    """Updates the database if necessary for matches from the given user, and if they're in a team, their team members."""
+    regionObj = Region(region)
+    summoner = await getSummoner(ctx, regionObj, name)
+    matchIdList = reqHandler.getMatchIdListByPuuid(regionObj, summoner.puuid, 100)
+    matchesToAdd = dbHandler.validateMatches(matchIdList)
+    matchList = []  # Empty list to store match data
+    await reqHandler.getMatchesFromList(regionObj, matchesToAdd, matchList)
+    dbHandler.addMatches(matchList)
+    await ctx.send('Done updating!')
 
 
 @bot.command(name="commands", description="Display all commands and information.")
@@ -78,7 +100,7 @@ async def cmd_matches(ctx, region, name, numMatches):
     if summoner is None:
         return
     puuid = summoner.puuid
-    matches = reqHandler.getMatchesByPuuid(regionObj, puuid, numMatches)
+    matches = reqHandler.getMatchIdListByPuuid(regionObj, puuid, numMatches)
     if matches is None:
         await ctx.send(f'No matches found!')
         return
@@ -97,21 +119,24 @@ async def cmd_match(ctx, matchId):
 @bot.command(name="team", description="Look up a team given a player's name")
 async def cmd_team(ctx, region, name):
     """Sends information about a summoner's clash team given their region and name."""
+    init_message = await ctx.send("Looking up player's team...")
     regionObj = Region(region)
     summoner = await getSummoner(ctx, regionObj, name)
     if summoner is None:  # Exit function if summoner is not found, error messages already sent
         return
     teamIds = reqHandler.getTeamIdsBySummonerId(regionObj, summoner.id)  # Obtain teamIds
-    if len(teamIds) == 0:  # Check if summoner is in a team
+    if len(teamIds) == 0:  # Check if summoner is not in a team
         await ctx.send(f'Summoner {summoner.name} is not currently in a clash team.')
         return
     team = reqHandler.getTeamByTeamId(regionObj, teamIds[0])  # Get the soonest team's information
+    await init_message.edit(content="Obtaining team's information...")
     for player in team.players:
         tempSumm = reqHandler.getSummonerById(regionObj, player.summonerId)
-        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, player.summoner.id)
-        emBuilder = EmbedBuilder()
+        leagueEntry = reqHandler.getLeagueEntryBySummonerId(regionObj, player.summonerId)
+        print(leagueEntry[0].totalGames())
         embed = emBuilder.buildSummonerEmbed(ctx, regionObj, tempSumm, leagueEntry)
         await ctx.send(content="", embed=embed)
+    await init_message.edit("Team information displayed below.")
 
 
 @bot.command(name="tournaments", description="Return all active or upcoming tournaments.")
@@ -137,5 +162,10 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
 
 
-# Run the bot with the specified token
-bot.run(bot_token)
+async def main():
+    await bot.start(bot_token)
+
+
+# Run the bot using asyncio.run()
+if __name__ == "__main__":
+    asyncio.run(main())

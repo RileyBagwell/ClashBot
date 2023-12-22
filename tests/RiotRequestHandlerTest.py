@@ -26,7 +26,7 @@ class RiotRequestHandlerTest:
 
     def getMatchesByPuuidTest(self):
         tempPuuid = 'oYMmFzmHEqn-LZnsw0XJEbb-o-_kMiBBJqIny9PGdoi0ZjzmIHtLJ8bOSO5IrbZrN50nn_f6xSBp4g'
-        print(f'Matches: {self.handler.getMatchesByPuuid("americas", tempPuuid, 5)}\n')
+        print(f'Matches: {self.handler.getMatchIdListByPuuid("americas", tempPuuid, 5)}\n')
 
 
     def getMatchByMatchIdTest(self):

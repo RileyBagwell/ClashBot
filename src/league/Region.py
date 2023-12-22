@@ -7,8 +7,8 @@
 class Region:
     def __init__(self, tempRegion):
         """Attempts to correct the given region, and then verifies that it is valid."""
-        self.region = tempRegion  # Initialize self.region
-        self.region = self.correctRegion()  # Correct self.region
+        self.region = tempRegion
+        self.region = self.correctRegion()  # Initialize self.region
         self.route = self.rerouteRegion()  # Find the route value
         self.isValid = self.verifyRegion()  # Verify if it is a valid region
 
