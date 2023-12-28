@@ -45,7 +45,6 @@ class RiotRequestHandler:
 
     def get_league_entry_by_summoner_id(self, region, id):
         """Obtain a summoner's rank information given a region and name. Returns a list of LeagueEntry objects."""
-        print("league entry")
         url = f'https://{region.region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{id}?api_key={self.riot_key}'
         response = requests.get(url)
         if response.status_code != 200:  # Check if request was not successful
@@ -57,7 +56,6 @@ class RiotRequestHandler:
                 league_list[0] = LeagueEntry(obj)
             elif obj['queueType'] == 'RANKED_FLEX_SR':
                 league_list[1] = LeagueEntry(obj)
-        print("returning league entry")
         return league_list
 
 
