@@ -62,9 +62,11 @@ async def cmd_update(ctx, region, name):
     match_list = []  # Empty list to store match data
     # Populate the match_list with match data from Riot API
     await req_handler.get_matches_from_list(region_obj, matches_to_add, match_list)
+    match_list = list(filter(lambda x: x is not None, match_list))
     # Add the necessary matches to the database
     db_handler.add_matches(match_list)
-    await message.edit('Done updating!')
+    print("Done!")
+    await message.edit(content='Database has been updated with your most recent matches!')
 
 
 @bot.command(name="commands", description="Display all commands and information.")

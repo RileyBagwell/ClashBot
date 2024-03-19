@@ -63,13 +63,21 @@ class RiotRequestHandler:
     async def get_matches_from_list(self, region, match_id_list, match_list):
         """Populates a given (empty) matchList to contain a list of match data as json objects.
         Top level function."""
-        await self.async_get_matches_from_list(region, match_id_list, match_list)
+        try:
+            await self.async_get_matches_from_list(region, match_id_list, match_list)
+        except Exception as e:
+            print(f"Error in getMatchesFromList(): {e}")
 
 
     async def async_get_matches_from_list(self, region, match_id_list, match_list):
         """Helper function for getMatchesFromList(). Creates the asyncio tasks."""
-        tasks = [self.async_get_match(region, match_id) for match_id in match_id_list]
-        match_list.extend(await asyncio.gather(*tasks))  # Await the results and extend the existing matchList
+        try:
+            tasks = [self.async_get_match(region, match_id) for match_id in match_id_list]
+            match_list.extend(await asyncio.gather(*tasks))  # Await the results and extend the existing matchList
+        except RiotRateLimit as e:
+            print(f"Error in getMatchesFromList(): {e}")
+            raise e
+
 
 
     async def async_get_match(self, region, match_id):
@@ -79,9 +87,11 @@ class RiotRequestHandler:
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
             if response.status_code == 200:
+                print(f"Returning match data: {match_id}   |   {response.json}")
                 return response.json()
             else:
-                return None
+                print(f'Error in getMatch(): {response.status_code}, {response.json}')
+                raise RiotRateLimit("Rate limit exceeded")
 
 
     def get_match_id_list_by_puuid(self, region, puuid, num_matches):
@@ -91,6 +101,7 @@ class RiotRequestHandler:
         if response.status_code != 200:  # Check if request was not successful
             print(f'Error in getMatchesByPuuid(): {response.status_code}, {response.reason}')
             return None
+        print("Returning list of match IDs")
         return list(response.json())
 
 

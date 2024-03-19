@@ -1,4 +1,4 @@
-class RiotRateLimit:
+class RiotRateLimit(Exception):
     def __init__(self, message=None):
         self.message = message
 
