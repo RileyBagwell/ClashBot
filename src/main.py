@@ -26,6 +26,15 @@ em_builder = EmbedBuilder()
 bot_token = os.getenv('BOT_KEY')
 
 
+async def parse_name(input):
+    """Returns a list containing the game name and tag line from the input string.
+    list[0] = game name, list[1] = tag line"""
+    split = input.split('#')
+    if len(split) != 2:
+        return None
+    return split
+
+
 async def get_summoner(ctx, region_obj, name):
     """Obtains a summoner from the API. If it exists, returns the summoner as a Summoner object. If not, returns None
     and sends a message saying it was not found. 'region' parameter should be a Region object."""
