@@ -86,6 +86,7 @@ async def cmd_summoner(ctx, region, name):
     """Sends information for a summoner given a region and a name."""
     region_obj = Region(region)
     summoner = await get_summoner(ctx, region_obj, name)
+    print(summoner)
     if summoner is not None:
         league_entry = req_handler.get_league_entry_by_summoner_id(region_obj, summoner.id)
         embed = em_builder.build_summoner_embed(ctx, region_obj, summoner, league_entry)

@@ -10,7 +10,7 @@ from src.utils.RiotRequestHandler import RiotRequestHandler
 
 class DatabaseHandler:
     def __init__(self):
-        load_dotenv()  # Load .env file for database info
+        load_dotenv()  # Load ..env file for database info
         # Configure database information
         self.config = {
             'user': os.getenv('DB_USER'),
