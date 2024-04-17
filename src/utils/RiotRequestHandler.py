@@ -8,7 +8,8 @@ from src.league.LeagueEntry import LeagueEntry
 from src.league.Summoner import Summoner
 from src.league.clash.Team import Team
 from src.league.clash.Tournament import Tournament
-from src.utils.errors import RiotRateLimit
+from src.utils.errors.RiotErrors import RiotRateLimit
+from src.utils.errors.RiotErrors import RiotUnauthorizedRequest
 
 
 class RiotRequestHandler:
@@ -16,10 +17,14 @@ class RiotRequestHandler:
         self.riot_key = os.getenv('RIOT_KEY')
 
 
-    def raise_riot_exception(self, response):
-        code = response.status_code
+    def validate_status_code(self, code):
+        """Check status code from response and raise exception if necessary."""
+        if code == 401:
+            raise RiotUnauthorizedRequest()
+        if code == 403:
+            raise RiotForbiddenRequest()
         if code == 429:
-            raise RiotRateLimit("Rate limit exceeded")
+            raise RiotRateLimit()
 
 
     # ----- Summoner functions
@@ -76,8 +81,6 @@ class RiotRequestHandler:
             match_list.extend(await asyncio.gather(*tasks))  # Await the results and extend the existing matchList
         except RiotRateLimit as e:
             print(f"Error in getMatchesFromList(): {e}")
-            raise e
-
 
 
     async def async_get_match(self, region, match_id):
@@ -91,7 +94,7 @@ class RiotRequestHandler:
                 return response.json()
             else:
                 print(f'Error in getMatch(): {response.status_code}, {response.json}')
-                raise RiotRateLimit("Rate limit exceeded")
+                raise RiotRateLimit
 
 
     def get_match_id_list_by_puuid(self, region, puuid, num_matches):
