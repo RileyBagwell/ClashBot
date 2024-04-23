@@ -1,12 +1,16 @@
 import asyncio
 import os
 import time
+from typing import Optional
 
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
+from src.league.Account import Account
 from src.league.Region import Region
+from src.league.RiotID import RiotID
+from src.league.Summoner import Summoner
 from src.utils.DatabaseHandler import DatabaseHandler
 from src.utils.EmbedBuilder import EmbedBuilder
 from src.utils.RiotRequestHandler import RiotRequestHandler
@@ -26,36 +30,59 @@ em_builder = EmbedBuilder()
 bot_token = os.getenv('BOT_KEY')
 
 
-async def parse_name(input):
-    """Returns a list containing the game name and tag line from the input string.
-    list[0] = game name, list[1] = tag line"""
-    split = input.split('#')
-    if len(split) != 2:
-        return None
-    return split
-
-
-async def get_summoner(ctx, region_obj, name):
-    """Obtains a summoner from the API. If it exists, returns the summoner as a Summoner object. If not, returns None
-    and sends a message saying it was not found. 'region' parameter should be a Region object."""
-    if region_obj.is_valid is False:
+async def get_summoner(ctx, region, account) -> Optional[Summoner]:
+    """Obtains a summoner from the API and deserializes it, and returns it as a Summoner object. Validates that the
+    region is valid.
+    Args:
+        ctx: The ctx of the message that called the function
+        region: A region object of the region for the account to look up
+        account: A account object of the account to look up
+    Returns:
+        Summoner object if summoner is found
+        None if not found
+    """
+    if not region.is_valid:  # Validate region
         await ctx.send("Please choose a valid region!")
         return None
-    summoner = req_handler.get_summoner_by_name(region_obj, name)
+    summoner = req_handler.get_summoner_by_account(region, account)
     if summoner is None:
-        await ctx.send(f'Summoner *{name}* in region *{region_obj.region}* not found!')
+        await ctx.send(f'Summoner *{account.name_tag}* in region *{region.region}* not found!')
         return None
     return summoner
 
 
+async def get_account(ctx, region, riot_id) -> Optional[Account]:
+    """Obtains an account from the API and deserializes it, and returns it as an Account object. Validates that the
+    region and riot_id are valid.
+    Args:
+        ctx: The ctx of the message that called the function
+        region: A region object of the region for the account to look up
+        riot_id: A RiotID object of the Riot ID to look up
+    Returns:
+        Account object if account is found
+        None if not found
+    """
+    if not region.is_valid:  # Validate region
+        await ctx.send("Please choose a valid region!")
+        return None
+    if not riot_id.is_valid:  # Validate riot_id
+        await ctx.send("Please enter a valid Riot ID!")
+        return None
+    account = req_handler.get_account_by_riot_id(region, riot_id)
+    if account is None:
+        await ctx.send(f'Account *{riot_id}* in region *{region.region}* not found!')
+        return None
+    return account
+
+
 @bot.command()
 async def test(ctx):
+    """Test command to quickly test the bot functionality."""
     message = await ctx.send("Doing first task...")
     time.sleep(2)
     await message.edit(content="Doing second task...")
     time.sleep(2)
     await message.edit(content="Done!")
-
 
 
 @bot.command(name="update", description="Update the database to show new matches.")
@@ -91,23 +118,31 @@ async def cmd_commands(ctx):
 
 
 @bot.command(name="summoner", description="Pull up information of a summoner.")
-async def cmd_summoner(ctx, region, name):
-    """Sends information for a summoner given a region and a name."""
-    region_obj = Region(region)
-    summoner = await get_summoner(ctx, region_obj, name)
-    print(summoner)
-    if summoner is not None:
-        league_entry = req_handler.get_league_entry_by_summoner_id(region_obj, summoner.id)
-        embed = em_builder.build_summoner_embed(ctx, region_obj, summoner, league_entry)
-        await ctx.send(content="", embed=embed)
+async def cmd_summoner(ctx, region_str, riot_id_str):
+    """Sends an embed with a basic profile view of a given summoner. Ctx is passed to necessary functions to edit
+    the message upon failure.
+    Command Args:
+        region_str: The region of the summoner as a string
+        riot_id_str: The Riot ID of the summoner as a string (Name#Tag)
+    """
+    region = Region(region_str)
+    riot_id = RiotID(riot_id_str)
+    account = await get_account(ctx, region, riot_id)  # Get account object
+    if account is None:  # Verify the account was obtained
+        return
+    summoner = await get_summoner(ctx, region, account)
+    if summoner is None:  # Verify the summoner was obtained
+        return
+    league_entry = req_handler.get_league_entry_by_summoner_id(region, summoner.id)
+    embed = em_builder.build_summoner_embed(ctx, region, summoner, league_entry)
+    await ctx.send(content="", embed=embed)
     return
 
 
 @bot.command(name="matches", description="Return a list of recent match ids.")
 async def cmd_matches(ctx, region, name, num_matches):
     """Sends a list of a given number of match ids from a given player."""
-    # Check for a valid number of matches
-    if int(num_matches) < 1 or int(num_matches) > 100:
+    if int(num_matches) < 1 or int(num_matches) > 100:  # Check for a valid number of matches
         await ctx.send("Please enter a number between 1 and 100 (inclusive)!")
         return
 

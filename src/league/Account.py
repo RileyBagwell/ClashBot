@@ -11,6 +11,7 @@ class Account:
             self.tag_line = 'TagLine'
         else:
             self.tag_line = account_dto['tagLine']
+        self.name_tag = f'{self.name}#{self.tag_line}'
 
 
     def __str__(self):

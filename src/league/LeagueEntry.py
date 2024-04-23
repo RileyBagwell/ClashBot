@@ -2,7 +2,6 @@ class LeagueEntry:
     def __init__(self, league_entry_dto):
         self.league_id = league_entry_dto['leagueId']
         self.summoner_id = league_entry_dto['summonerId']
-        self.summoner_name = league_entry_dto['summonerName']
         self.queue_type = league_entry_dto['queueType']
         self.tier = league_entry_dto['tier']
         self.rank = league_entry_dto['rank']
