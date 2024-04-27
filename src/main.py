@@ -140,30 +140,35 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
 
 
 @bot.command(name="matches", description="Return a list of recent match ids.")
-async def cmd_matches(ctx, region, name, num_matches):
-    """Sends a list of a given number of match ids from a given player."""
+async def cmd_matches(ctx, debug, region_str, riot_id_str, num_matches):
+    """Sends a list of a given number of match ids from a given player.
+    The debug flag is used to run the function with test data w/o a database interaction."""
+    region = Region(region_str)
+    riot_id = RiotID(riot_id_str)
     if int(num_matches) < 1 or int(num_matches) > 100:  # Check for a valid number of matches
         await ctx.send("Please enter a number between 1 and 100 (inclusive)!")
         return
-
-    regionObj = Region(region)
-    summoner = await get_summoner(ctx, regionObj, name)
-    if summoner is None:
+    account = await get_account(ctx, region, riot_id)  # Get account object
+    if account is None:  # Verify the account was obtained
         return
-    puuid = summoner.puuid
-    matches = req_handler.get_match_id_list_by_puuid(regionObj, puuid, num_matches)
-    if matches is None:
-        await ctx.send(f'No matches found!')
-        return
-    str = "__Match Ids:__\n"
-    for match_id in matches:
-        str += match_id + ', '
-    await ctx.send(str)
+    # Logic:
+    # Obtain list of matchIDs from RiotHandler
+    # Use DBHandler to receive list of IDs NOT present in the database
+    # If the list is not empty, request the match data with RRHandler
+    # If the list is not empty, add the match data to DB with DBHandler
+    # Use DBHandler to receive list of match data from the database
+    # Send match data to EmbedBuilder
+    await ctx.send("Command not fully implemented, but reached the end!")
 
 
 @bot.command(name="match", description="Return information about a match given a match id.")
-async def cmd_match(ctx, matchId):
+async def cmd_match(ctx, region_str, matchId):
     """Sends all information about a match given its id."""
+    region = Region(region_str)
+    if not region.is_valid:  # Validate region
+        await ctx.send("Please choose a valid region!")
+        return
+
     await ctx.send("'match' command to be implemented")
 
 

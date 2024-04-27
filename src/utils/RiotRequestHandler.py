@@ -139,9 +139,9 @@ class RiotRequestHandler:
                 raise RiotRateLimit
 
 
-    def get_match_id_list_by_puuid(self, region, puuid, num_matches) -> List[str]:
+    def get_match_id_list_by_account(self, region, account, num_matches) -> Optional[List[str]]
         """Obtain a given number of matchIds for a specified puuid. Returns a list of matchIds."""
-        url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={num_matches}&api_key={self.riot_key}'
+        url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/by-puuid/{account.puuid}/ids?start=0&count={num_matches}&api_key={self.riot_key}'
         response = requests.get(url)
         if response.status_code != 200:  # Check if request was not successful
             print(f'Error in getMatchesByPuuid(): {response.status_code}, {response.reason}')
