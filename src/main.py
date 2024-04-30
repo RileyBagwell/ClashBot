@@ -134,7 +134,7 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
     if summoner is None:  # Verify the summoner was obtained
         return
     league_entry = req_handler.get_league_entry_by_summoner_id(region, summoner.id)
-    embed = em_builder.build_summoner_embed(ctx, region, summoner, league_entry)
+    embed = em_builder.build_embed_summoner(ctx, region, summoner, league_entry)
     await ctx.send(content="", embed=embed)
     return
 
@@ -162,14 +162,20 @@ async def cmd_matches(ctx, debug, region_str, riot_id_str, num_matches):
 
 
 @bot.command(name="match", description="Return information about a match given a match id.")
-async def cmd_match(ctx, region_str, matchId):
+async def cmd_match(ctx, region_str, match_id):
     """Sends all information about a match given its id."""
     region = Region(region_str)
     if not region.is_valid:  # Validate region
         await ctx.send("Please choose a valid region!")
         return
-
-    await ctx.send("'match' command to be implemented")
+    match = req_handler.get_match_by_match_id(region, match_id)
+    try:
+        embed = em_builder.build_embed_match_generic(ctx, match)
+    except Exception as e:
+        print(f"Error in cmd_match(): {e}")
+        await ctx.send("An error occurred while processing the match data.")
+        return
+    await ctx.send(embed=embed, content=f"Command finished. {match.participants[0].summoner_name} vs {match.participants[5].summoner_name}")
 
 
 @bot.command(name="team", description="Look up a team given a player's name")
@@ -190,7 +196,7 @@ async def cmd_team(ctx, region, name):
         temp_summ = req_handler.get_summoner_by_id(region_obj, player.summoner_id)
         league_entry = req_handler.get_league_entry_by_summoner_id(region_obj, player.summoner_id)
         print(league_entry[0].total_games())
-        embed = em_builder.build_summoner_embed(ctx, region_obj, temp_summ, league_entry)
+        embed = em_builder.build_embed_summoner(ctx, region_obj, temp_summ, league_entry)
         await ctx.send(content="", embed=embed)
     await init_message.edit("Team information displayed below.")
 

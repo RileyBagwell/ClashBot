@@ -11,6 +11,7 @@ from src.league.Region import Region
 from src.league.Summoner import Summoner
 from src.league.clash.Team import Team
 from src.league.clash.Tournament import Tournament
+from src.league.match.Match import Match
 from src.utils.errors.RiotErrors import RiotBadRequest, RiotUnauthorizedRequest, RiotForbiddenRequest, \
     RiotDataNotFound, RiotMethodNotAllowed, RiotUnsupportedMediaType, RiotRateLimit, RiotInternalServerError, \
     RiotBadGateway, RiotServiceUnavailable, RiotGatewayTimeout, RiotAPIException
@@ -139,7 +140,7 @@ class RiotRequestHandler:
                 raise RiotRateLimit
 
 
-    def get_match_id_list_by_account(self, region, account, num_matches) -> Optional[List[str]]
+    def get_match_id_list_by_account(self, region, account, num_matches) -> Optional[List[str]]:
         """Obtain a given number of matchIds for a specified puuid. Returns a list of matchIds."""
         url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/by-puuid/{account.puuid}/ids?start=0&count={num_matches}&api_key={self.riot_key}'
         response = requests.get(url)
@@ -150,16 +151,21 @@ class RiotRequestHandler:
         return list(response.json())
 
 
-    def get_match_by_match_id(self, region_obj, match_id)  -> dict:
+    def get_match_by_match_id(self, region_obj, match_id)  -> Optional[Match]:
         """Obtain match data given a region and matchId. Returns a Match json object."""
-        print("getMatchByMatchId() start")
         url = f'https://{region_obj.route}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={self.riot_key}'
         response = requests.get(url)
-        if response.status_code != 200:  # Check if request was not successful
-            print(f'Error in getMatchByMatchId(): {response.status_code}, {response.reason}')
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_account_by_riot_id(): {e}")
             return None
-        print("End")
-        return response.json()
+        try:
+            match = Match(response.json())
+        except Exception as e:
+            print(f"Error in get_match_by_match_id(): {e}")
+            return None
+        return match
 
 
     # ----- Clash functions
