@@ -1,82 +1,82 @@
 [
     {
         "gameMode": "CLASSIC",
-        "description": "Classic Summoner's Rift and Twisted Treeline games"
+        "description": "Summoner's Rift"
     },
     {
         "gameMode": "ODIN",
-        "description": "Dominion/Crystal Scar games"
+        "description": "Dominion/Crystal Scar"
     },
     {
         "gameMode": "ARAM",
-        "description": "ARAM games"
+        "description": "ARAM"
     },
     {
         "gameMode": "TUTORIAL",
-        "description": "Tutorial games"
+        "description": "Tutorial"
     },
     {
         "gameMode": "URF",
-        "description": "URF games"
+        "description": "URF"
     },
     {
         "gameMode": "DOOMBOTSTEEMO",
-        "description": "Doom Bot games"
+        "description": "Doom Bot"
     },
     {
         "gameMode": "ONEFORALL",
-        "description": "One for All games"
+        "description": "One for All"
     },
     {
         "gameMode": "ASCENSION",
-        "description": "Ascension games"
+        "description": "Ascension"
     },
     {
         "gameMode": "FIRSTBLOOD",
-        "description": "Snowdown Showdown games"
+        "description": "Snowdown Showdown"
     },
     {
         "gameMode": "KINGPORO",
-        "description": "Legend of the Poro King games"
+        "description": "Legend of the Poro King"
     },
     {
         "gameMode": "SIEGE",
-        "description": "Nexus Siege games"
+        "description": "Nexus Siege"
     },
     {
         "gameMode": "ASSASSINATE",
-        "description": "Blood Hunt Assassin games"
+        "description": "Blood Hunt Assassin"
     },
     {
         "gameMode": "ARSR",
-        "description": "All Random Summoner's Rift games"
+        "description": "AR Summoner's Rift"
     },
     {
         "gameMode": "DARKSTAR",
-        "description": "Dark Star: Singularity games"
+        "description": "Dark Star: Singularity"
     },
     {
         "gameMode": "STARGUARDIAN",
-        "description": "Star Guardian Invasion games"
+        "description": "Star Guardian Invasion"
     },
     {
         "gameMode": "PROJECT",
-        "description": "PROJECT: Hunters games"
+        "description": "PROJECT: Hunters"
     },
     {
         "gameMode": "GAMEMODEX",
-        "description": "Nexus Blitz games"
+        "description": "Nexus Blitz"
     },
     {
         "gameMode": "ODYSSEY",
-        "description": "Odyssey: Extraction games"
+        "description": "Odyssey: Extraction"
     },
     {
         "gameMode": "NEXUSBLITZ",
-        "description": "Nexus Blitz games"
+        "description": "Nexus Blitz"
     },
     {
         "gameMode": "ULTBOOK",
-        "description": "Ultimate Spellbook games"
+        "description": "Ultimate Spellbook"
     }
 ]

@@ -9,11 +9,12 @@ from src.utils.DDragonRequestHandler import DDragonRequestHandler
 
 class EmbedBuilder:
     def __init__(self):
+        """Initializes game_modes, game_types, maps, and queues as lists of dictionaries from the files."""
         file_path = '../src/league/files/'
-        self.game_modes = json.load(open(file_path+'gameModes.json'))
-        self.game_types = json.load(open(file_path+'gameTypes.json'))
-        self.maps = json.load(open(file_path+'maps.json'))
-        self.queues = json.load(open(file_path+'queues.json'))
+        self.game_modes = json.load(open(file_path + 'gameModes.json'))
+        self.game_types = json.load(open(file_path + 'gameTypes.json'))
+        self.maps = json.load(open(file_path + 'maps.json'))
+        self.queues = json.load(open(file_path + 'queues.json'))
 
 
     # ----- Helper Function
@@ -34,8 +35,43 @@ class EmbedBuilder:
         return ranks
 
 
-    def parse_files(self) -> Optional[list[str]]:
-        pass
+    def parse_files(self, info_dict) -> dict:
+        """Attempts to grab the description of a game mode, type, map, and queue from the files.
+        Parameters:
+            info_dict: dictionary containing game_mode, game_type, map, and queue keys with their respective
+                values from the API.
+        Returns:
+            The same dictionary, with modified values to contain the correct descriptions from the files, or
+                "Unknown" if it cannot be found."""
+        try:  # game_modes
+            for obj in self.game_modes:
+                if obj['gameMode'] == info_dict['game_mode']:
+                    info_dict['game_mode'] = obj['description']
+        except Exception as e:
+            print(f"Error in parse_files(); can't parse game_mode: {e}")
+
+        try:  # game_types
+            for obj in self.game_types:
+                if obj['gametype'] == info_dict['game_type']:
+                    info_dict['game_type'] = obj['description']
+        except Exception as e:
+            print(f"Error in parse_files(); can't parse game_type: {e}")
+
+        try:  # maps
+            for obj in self.maps:
+                if obj['mapId'] == info_dict['map']:
+                    info_dict['mapId'] = obj['mapName']
+        except Exception as e:
+            print(f"Error in parse_files(); can't parse game_mode: {e}")
+
+        try:  # queues
+            for obj in self.game_modes:
+                if obj['queueId'] == info_dict['queues']:
+                    info_dict['queues'] = obj['description']
+        except Exception as e:
+            print(f"Error in parse_files(); can't parse game_mode: {e}")
+        return info_dict
+
 
 
     # ----- Builder Functions
@@ -82,9 +118,9 @@ class EmbedBuilder:
         map = "Unknown"
         queue = "Unknown"
 
-        game_mode = self.game_modes[match.game_mode]
+        #game_mode = self.game_modes[match.game_mode]
         print(match.game_mode)
-        embed.add_field(name="Game Mode", value=self.game_modes[match.game_mode], inline=True)
+        #embed.add_field(name="Game Mode", value=self.game_modes[match.game_mode], inline=True)
         embed.add_field(name="Game Type", value=match.game_type, inline=True)
         embed.add_field(name="Game Duration", value=match.game_duration, inline=True)
         embed.add_field(name="Game Version", value=match.game_version, inline=True)

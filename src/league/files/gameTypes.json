@@ -1,14 +1,14 @@
 [
     {
         "gametype": "CUSTOM_GAME",
-        "description": "Custom game"
+        "description": "Custom"
     },
     {
         "gametype": "TUTORIAL_GAME",
-        "description": "Tutorial game"
+        "description": "Tutorial"
     },
     {
         "gametype": "MATCHED_GAME",
-        "description": "Matched game"
+        "description": "Matched"
     }
 ]
