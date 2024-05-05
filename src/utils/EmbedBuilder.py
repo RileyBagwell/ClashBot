@@ -48,30 +48,33 @@ class EmbedBuilder:
                 if obj['gameMode'] == info_dict['game_mode']:
                     info_dict['game_mode'] = obj['description']
         except Exception as e:
-            print(f"Error in parse_files(); can't parse game_mode: {e}")
+            print(f"Error in parse_files(); can't parse gameModes: {e}")
+            info_dict['game_mode'] = "Unknown"
 
         try:  # game_types
             for obj in self.game_types:
                 if obj['gametype'] == info_dict['game_type']:
                     info_dict['game_type'] = obj['description']
         except Exception as e:
-            print(f"Error in parse_files(); can't parse game_type: {e}")
+            print(f"Error in parse_files(); can't parse gameTypes: {e}")
+            info_dict['game_type'] = "Unknown"
 
         try:  # maps
             for obj in self.maps:
                 if obj['mapId'] == info_dict['map']:
                     info_dict['mapId'] = obj['mapName']
         except Exception as e:
-            print(f"Error in parse_files(); can't parse game_mode: {e}")
+            print(f"Error in parse_files(); can't parse maps {e}")
+            info_dict['map'] = "Unknown"
 
         try:  # queues
             for obj in self.game_modes:
                 if obj['queueId'] == info_dict['queues']:
                     info_dict['queues'] = obj['description']
         except Exception as e:
-            print(f"Error in parse_files(); can't parse game_mode: {e}")
+            print(f"Error in parse_files(); can't parse queues: {e}")
+            info_dict['queue'] = "Unknown"
         return info_dict
-
 
 
     # ----- Builder Functions
@@ -113,10 +116,7 @@ class EmbedBuilder:
             title=f"Match {match.match_id}",
             colour=0x4a5691
         )
-        game_mode = "Unknown"
-        game_type = "Unknown"
-        map = "Unknown"
-        queue = "Unknown"
+
 
         #game_mode = self.game_modes[match.game_mode]
         print(match.game_mode)
