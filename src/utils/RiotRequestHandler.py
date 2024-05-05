@@ -9,6 +9,7 @@ from src.league.Account import Account
 from src.league.LeagueEntry import LeagueEntry
 from src.league.Region import Region
 from src.league.Summoner import Summoner
+from src.league.clash.Player import Player
 from src.league.clash.Team import Team
 from src.league.clash.Tournament import Tournament
 from src.league.match.Match import Match
@@ -54,21 +55,47 @@ class RiotRequestHandler:
 
 
     # ----- Account functions
+    def get_account_by_puuid(self, region: Region, puuid: str) -> Optional[Account]:
+        url = f"https://{region.route}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}?api_key={self.riot_key}"
+        response = requests.get(url)
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_account_by_puuid(): {e}")
+            return None
+
+        account = None
+        try:
+            account = Account(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_account_by_puuid(): {e}")
+            return None
+        return account
+
+
     def get_account_by_riot_id(self, region, riot_id) -> Optional[Account]:
         """Obtain an account given a Region object, game name, and tag line."""
-        url = f'https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{riot_id.name}/{riot_id.tag_line}?api_key={self.riot_key}'
+        url = f'https://{region.route}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{riot_id.name}/{riot_id.tag_line}?api_key={self.riot_key}'
         response = requests.get(url)
         try:
             self.validate_status_code(response.status_code)
         except RiotAPIException as e:
             print(f"Error in get_account_by_riot_id(): {e}")
             return None
-        return Account(response.json(), region)  # Create and return an Account object with AccountDTO
+
+        account = None
+        try:
+            account = Account(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_account_by_riot_id(): {e}")
+            return None
+        return account
 
 
     # ----- Summoner functions
     def get_summoner_by_name(self, region, name):
-        """Obtain a summoner given a Region object and name. Returns a Summoner object."""
+        """Obtain a summoner given a Region object and name. Returns a Summoner object.
+        Don't use this, outdated"""
         url = f'https://{region.region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/{name}?api_key={self.riot_key}'
         response = requests.get(url)
         try:
@@ -76,11 +103,19 @@ class RiotRequestHandler:
         except RiotAPIException as e:
             print(f"Error in getSummonerByName(): {e}")
             return None
-        return Summoner(response.json(), region)  # Create and return a Summoner object with SummonerDTO
+
+        summoner = None
+        try:
+            summoner = Summoner(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_summoner_by_name(): {e}")
+            return None
+        return summoner
 
 
     def get_summoner_by_account(self, region: Region, account: Account):
-        """Obtain a summoner given a Region object and name. Returns a Summoner object."""
+        """Obtain a summoner given a Region object and name. This uses the summoners/by-puuid endpoint using a puuid,
+        this simply gives an additional option for getting a summoner. This method is not recommended."""
         url = f'https://{region.region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{account.puuid}?api_key={self.riot_key}'
         response = requests.get(url)
         try:
@@ -88,15 +123,61 @@ class RiotRequestHandler:
         except RiotAPIException as e:
             print(f"Error in get_summoner_by_account(): {e}")
             return None
-        return Summoner(response.json(), region, account)  # Create and return a Summoner object with SummonerDTO
+
+        summoner = None
+        try:
+            summoner = Summoner(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_summoner_by_account(): {e}")
+            return None
+        return summoner
 
 
-    def get_league_entry_by_summoner_id(self, region, id):
-        """Obtain a summoner's rank information given a region and name. Returns a list of LeagueEntry objects."""
-        url = f'https://{region.region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{id}?api_key={self.riot_key}'
+    def get_summoner_by_puuid(self, region: Region, puuid: str) -> Optional[Summoner]:
+        """Obtain a summoner given a Region object and a puuid."""
+        url = f"https://{region.region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}?api_key={self.riot_key}"
         response = requests.get(url)
-        if response.status_code != 200:  # Check if request was not successful
-            print(f'Error in getLeagueEntryBySummonerId(): {response.status_code}, {response.reason}')
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_summoner_by_puuid(): {e}")
+            return None
+
+        summoner = None
+        try:
+            summoner = Summoner(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_summoner_by_puuid(): {e}")
+            return None
+        return summoner
+
+
+    def get_summoner_by_summoner_id(self, region: Region, summ_id: str) -> Optional[Summoner]:
+        url = f"https://{region.region}.api.riotgames.com/lol/summoner/v4/summoners/{summ_id}?api_key={self.riot_key}"
+        response = requests.get(url)
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_summoner_by_puuid(): {e}")
+            return None
+
+        summoner = None
+        try:
+            summoner = Summoner(response.json(), region)
+        except Exception as e:
+            print(f"Error in get_summoner_by_summoner_id(): {e}")
+            return None
+        return summoner
+
+
+    def get_league_entry_by_summoner_id(self, region, summ_id) -> Optional[List[LeagueEntry]]:
+        """Obtain a summoner's rank information given a region and name. Returns a list of LeagueEntry objects."""
+        url = f'https://{region.region}.api.riotgames.com/lol/league/v4/entries/by-summoner/{summ_id}?api_key={self.riot_key}'
+        response = requests.get(url)
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_league_entry_by_summoner_id(): {e}")
             return None
         league_list = [None, None]
         for obj in response.json():
@@ -169,7 +250,7 @@ class RiotRequestHandler:
 
 
     # ----- Clash functions
-    def get_tournaments(self, region) -> List[Tournament]:
+    def get_tournaments(self, region) -> Optional[List[Tournament]]:
         """Obtain all active or upcoming tournaments. Returns a list of  Tournament objects."""
         url = f'https://{region.region}.api.riotgames.com/lol/clash/v1/tournaments?api_key={self.riot_key}'
         response = requests.get(url)
@@ -182,19 +263,38 @@ class RiotRequestHandler:
         return tournaments
 
 
-    def get_team_ids_by_summoner_id(self, region_obj, id) -> List[str]:
-        """Obtain team ids given a region and summoner name. Returns a list of team_ids."""
-        url = f'https://{region_obj.region}.api.riotgames.com/lol/clash/v1/players/by-summoner/{id}?api_key={self.riot_key}'
+    def get_players_by_summoner_id(self, region_obj, summ_id) -> Optional[List[Player]]:
+        """Returns a list of active Clash players for a given summoner ID. If a summoner registers for multiple
+        tournaments at the same time (e.g. Saturday and Sunday) then both registrations would appear in the list."""
+        url = f'https://{region_obj.region}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{summ_id}?api_key={self.riot_key}'
         response = requests.get(url)
-        if response.status_code != 200:  # Check if request was not successful
-            print(f'Error in getTeamIdsBySummonerId(): {response.status_code}, {response.reason}')
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_players_by_summoner_id(): {e}")
+            return None
+        players = []
+        for obj in response.json():
+            player = Player(obj, obj['teamId'])
+            players.append(player)
+        return players
+
+
+    def get_team_ids_by_summoner_id(self, region_obj, summ_id) -> Optional[List[str]]:
+        """Obtain team ids given a region and summoner name. Returns a list of team_ids."""
+        url = f'https://{region_obj.region}.api.riotgames.com/lol/clash/v1/players/by-summoner/{summ_id}?api_key={self.riot_key}'
+        response = requests.get(url)
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_account_by_riot_id(): {e}")
             return None
         team_ids = []
         for obj in response.json():
             team_ids.append(obj['teamId'])
         return team_ids
 
-    def get_team_by_team_id(self, region, team_id) -> Team:
+    def get_team_by_team_id(self, region, team_id) -> Optional[Team]:
         """Obtain team information given a region and teamId. Returns a Team object."""
         url = f'https://{region.region}.api.riotgames.com/lol/clash/v1/teams/{team_id}?api_key={self.riot_key}'
         response = requests.get(url)

@@ -21,6 +21,7 @@ prefix = '##'
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix=prefix, intents=intents)
+bot.remove_command('help')  # Remove the default help command
 
 # Other set up tasks
 load_dotenv()
@@ -30,7 +31,7 @@ em_builder = EmbedBuilder()
 bot_token = os.getenv('BOT_KEY')
 
 
-async def get_summoner(ctx, region, account) -> Optional[Summoner]:
+async def get_summoner(ctx, region: Region, account=None, puuid=None, summ_id=None) -> Optional[Summoner]:
     """Obtains a summoner from the API and deserializes it, and returns it as a Summoner object. Validates that the
     region is valid.
     Args:
@@ -44,14 +45,24 @@ async def get_summoner(ctx, region, account) -> Optional[Summoner]:
     if not region.is_valid:  # Validate region
         await ctx.send("Please choose a valid region!")
         return None
-    summoner = req_handler.get_summoner_by_account(region, account)
+
+    summoner = None
+    if account is not None:  # Get summoner by account object
+        summoner = req_handler.get_summoner_by_account(region, account)
+    elif puuid is not None:  # Get summoner by puuid
+        summoner = req_handler.get_summoner_by_puuid(region, puuid)
+    elif summ_id is not None:  # Get summoner by summoner id
+        summoner = req_handler.get_summoner_by_summoner_id(region, summ_id)
+    else:
+        print("Error in get_summoner(): You must specify an api endpoint parameter.")
+
     if summoner is None:
         await ctx.send(f'Summoner *{account.name_tag}* in region *{region.region}* not found!')
         return None
     return summoner
 
 
-async def get_account(ctx, region, riot_id) -> Optional[Account]:
+async def get_account(ctx, region: Region, puuid=None, riot_id=None) -> Optional[Account]:
     """Obtains an account from the API and deserializes it, and returns it as an Account object. Validates that the
     region and riot_id are valid.
     Args:
@@ -65,14 +76,48 @@ async def get_account(ctx, region, riot_id) -> Optional[Account]:
     if not region.is_valid:  # Validate region
         await ctx.send("Please choose a valid region!")
         return None
-    if not riot_id.is_valid:  # Validate riot_id
-        await ctx.send("Please enter a valid Riot ID!")
-        return None
-    account = req_handler.get_account_by_riot_id(region, riot_id)
-    if account is None:
+
+    account = None
+    if puuid is not None:  # Get account by puuid
+        account = req_handler.get_account_by_puuid(region, puuid)
+    elif riot_id is not None:  # Get account by riot id
+        if riot_id.is_valid:  # Validate riot id
+            account = req_handler.get_account_by_riot_id(region, riot_id)
+        else:
+            await ctx.send("Please enter a valid Riot ID!")
+            return None
+    else:
+        print("Error in get_account(): You must specify an api endpoint parameter.")
+
+    if account is None:  # Check if account exists
         await ctx.send(f'Account *{riot_id}* in region *{region.region}* not found!')
         return None
     return account
+
+
+# --- Bot Commands
+@bot.command(name="commands", description="Display all commands and information.")
+async def cmd_commands(ctx):
+    """Sends a list of commands and what they do."""
+    str = f"""**__Commands:__**
+**{prefix}commands**: Display this message
+**{prefix}summoner [region] [riot id]**: Get a summoner's information given their Riot ID
+**{prefix}team [region] [riot id]**: Get a team given a summoner's Riot ID
+**{prefix}tournaments [region]**: Show active or upcoming tournaments for a given region
+In Development:
+**{prefix}matches [region] [name] [numMatches]**: Get a list of a summoner's match ids"""
+    await ctx.send(str)
+
+
+@bot.command(name="help", description="Display information about and how to use the bot.")
+async def cmd_help(ctx):
+    """Sends a message with information about the bot and how to use it."""
+    out_str = f"""This bot is designed to help you look up opposing teams in League of Legends Clash tournaments.
+For a list of commands, use the `{prefix}commands.` command.
+THIS BOT IS IN DEVELOPMENT. If you encounter any issues, please contact <@852050979867459594>.
+Use `{prefix}team [region] [riot id]` to look up a team by a player's Riot ID. In the current state, this will give
+you a basic profile view of each player, as well as a link to their u.gg profile."""
+    await ctx.send(out_str)
 
 
 @bot.command()
@@ -105,18 +150,6 @@ async def cmd_update(ctx, region, name):
     await message.edit(content='Database has been updated with your most recent matches!')
 
 
-@bot.command(name="commands", description="Display all commands and information.")
-async def cmd_commands(ctx):
-    """Sends a list of commands and what they do."""
-    str = f"""**__Commands:__**
-**{prefix}commands**: Display this message
-**{prefix}summoner [region] [name]**: Get a summoner's information
-**{prefix}matches [region] [name] [numMatches]**: Get a list of a summoner's match ids
-**{prefix}team [region] [name]**: Get a team given a summoner's name
-**{prefix}tournaments [region]**: Get active or upcoming tournaments for a given region"""
-    await ctx.send(str)
-
-
 @bot.command(name="summoner", description="Pull up information of a summoner.")
 async def cmd_summoner(ctx, region_str, riot_id_str):
     """Sends an embed with a basic profile view of a given summoner. Ctx is passed to necessary functions to edit
@@ -127,14 +160,14 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
     """
     region = Region(region_str)
     riot_id = RiotID(riot_id_str)
-    account = await get_account(ctx, region, riot_id)  # Get account object
+    account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
     if account is None:  # Verify the account was obtained
         return
-    summoner = await get_summoner(ctx, region, account)
+    summoner = await get_summoner(ctx, region, puuid=account.puuid)
     if summoner is None:  # Verify the summoner was obtained
         return
-    league_entry = req_handler.get_league_entry_by_summoner_id(region, summoner.id)
-    embed = em_builder.build_embed_summoner(ctx, region, summoner, league_entry)
+    league_entries = req_handler.get_league_entry_by_summoner_id(region, summoner.id)
+    embed = em_builder.build_embed_summoner(ctx, region, account, summoner, league_entries)
     await ctx.send(content="", embed=embed)
     return
 
@@ -179,26 +212,38 @@ async def cmd_match(ctx, region_str, match_id):
 
 
 @bot.command(name="team", description="Look up a team given a player's name")
-async def cmd_team(ctx, region, name):
+async def cmd_team(ctx, region_str, riot_id_str):
     """Sends information about a summoner's clash team given their region and name."""
-    init_message = await ctx.send("Looking up player's team...")
-    region_obj = Region(region)
-    summoner = await get_summoner(ctx, region_obj, name)
-    if summoner is None:  # Exit function if summoner is not found, error messages already sent
+    region = Region(region_str)
+    riot_id = RiotID(riot_id_str)
+    account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
+    if account is None:  # Verify the account was obtained
         return
-    team_ids = req_handler.get_team_ids_by_summoner_id(region_obj, summoner.id)  # Obtain team_ids
+    summoner = await get_summoner(ctx, region, puuid=account.puuid)
+    if summoner is None:  # Verify the summoner was obtained
+        return
+
+    team_ids = req_handler.get_team_ids_by_summoner_id(region, summoner.id)  # Obtain team_ids
     if len(team_ids) == 0:  # Check if summoner is not in a team
-        await ctx.send(f'Summoner {summoner.name} is not currently in a clash team.')
+        await ctx.send(f'Summoner {account.name_tag} is not currently in a clash team.')
         return
-    team = req_handler.get_team_by_team_id(region_obj, team_ids[0])  # Get the soonest team's information
-    await init_message.edit(content="Obtaining team's information...")
+
+    miss_count = 0  # Track how many players could not be found.
+    team = req_handler.get_team_by_team_id(region, team_ids[0])  # Get the soonest team's information
     for player in team.players:
-        temp_summ = req_handler.get_summoner_by_id(region_obj, player.summoner_id)
-        league_entry = req_handler.get_league_entry_by_summoner_id(region_obj, player.summoner_id)
-        print(league_entry[0].total_games())
-        embed = em_builder.build_embed_summoner(ctx, region_obj, temp_summ, league_entry)
-        await ctx.send(content="", embed=embed)
-    await init_message.edit("Team information displayed below.")
+        temp_summ = await get_summoner(ctx, region, summ_id=player.summoner_id)
+        if temp_summ is None:  # Verify the summoner was obtained
+            miss_count += 1
+            continue
+        temp_acc = await get_account(ctx, region, puuid=temp_summ.puuid)
+        if temp_acc is None:  # Verify the account was obtained
+            miss_count += 1
+            continue
+        league_entry = req_handler.get_league_entry_by_summoner_id(region, player.summoner_id)
+        embed = em_builder.build_embed_summoner(ctx, region, temp_acc, temp_summ, league_entry)
+        await ctx.send(embed=embed)
+    if miss_count > 0:
+        await ctx.send("There was an error finding {miss_count} players.")
 
 
 @bot.command(name="tournaments", description="Return all active or upcoming tournaments.")
@@ -213,8 +258,13 @@ async def cmd_tournaments(ctx, region):
         await ctx.send("No upcoming tournaments.")
         return
     str = ''
-    for obj in tournaments:
-        str += obj.name_key + ' '
+    try:
+        for obj in tournaments:
+            registration_time = int(obj.schedule[0].registration_time / 1000)
+            start_time = int(obj.schedule[0].start_time / 1000)
+            str += f"Tournament Name: {obj.name_key} {obj.name_key_secondary}  |  ID: {obj.id}  |  Registration starts <t:{registration_time}:R>  |  Starting <t:{start_time}:R>\n"
+    except Exception as e:
+        print(e)
     await ctx.send(str)
 
 

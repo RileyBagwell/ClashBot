@@ -25,3 +25,10 @@ class LeagueEntry:
     def total_games(self):
         """Returns the total number of games played."""
         return self.wins + self.losses
+
+
+    def __str__(self):
+        return (f'Queue Type: {self.queue_type}  |  Hot StreaK: {self.hot_streak}  |  Veteran: {self.veteran}\n'
+                f'Fresh Blood: {self.fresh_blood}  |  Inactive: {self.inactive}\n'
+                f'{self.tier} {self.rank} - {self.league_points} LP\n'
+                f'{self.wins}W {self.losses}L - Winrate: {self.winrate()}%\n')

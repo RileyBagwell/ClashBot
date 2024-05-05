@@ -1,4 +1,13 @@
 class Account:
+    """A class to represent a Summoner in League of Legends
+    Attributes:
+        region (Region): The region of the summoner.
+        puuid (str): The puuid of the summoner.
+        name (str): The name of the summoner.
+        tag_line (str): The tag line of the summoner.
+        name_tag (str): The name and tag line of the summoner."""
+
+
     def __init__(self, account_dto, region):
         """Create a Summoner object given a SummonerDTO and Region object from the API"""
         self.region = region

@@ -78,29 +78,31 @@ class EmbedBuilder:
 
 
     # ----- Builder Functions
-    def build_embed_summoner(self, ctx, region_obj, summoner, league_entry):
+    def build_embed_summoner(self, ctx, region_obj, account, summoner, league_entries):
         """Returns an embed for a given summoner."""
         dd_handler = DDragonRequestHandler()
         icon_url = dd_handler.get_profile_icon_url(summoner.profile_icon_id)
-        ranks = self.extract_ranks(league_entry)
+        ranks = self.extract_ranks(league_entries)
         embed = discord.Embed(
-            title=summoner.name,
+            title=account.name,
             colour=0x4a5691
         )
         embed.set_thumbnail(url=icon_url)
         embed.add_field(name="Summoner Level", value=summoner.summoner_level, inline=False)
+        # Solo/Duo
         embed.add_field(name="Solo/Duo Rank", value=ranks[0], inline=True)
-        if league_entry[0] is not None:
-            embed.add_field(name="Winrate", value=str(league_entry[0].winrate()) + f"% ({league_entry[0].total_games()} games)", inline=True)
+        if league_entries[0] is not None:
+            embed.add_field(name="Winrate", value=str(league_entries[0].winrate()) + f"% ({league_entries[0].total_games()} games)", inline=True)
         else:
             embed.add_field(name="Winrate", value="0% (Unranked)", inline=True)
         embed.add_field(name="", value="", inline=False)  # Move to next line
+        # Flex
         embed.add_field(name="Flex Rank", value=ranks[1], inline=True)
-        if league_entry[1] is not None:
-            embed.add_field(name="Winrate", value=str(league_entry[1].winrate()) + f"% ({league_entry[1].total_games()} games)", inline=True)
+        if league_entries[1] is not None:
+            embed.add_field(name="Winrate", value=str(league_entries[1].winrate()) + f"% ({league_entries[1].total_games()} games)", inline=True)
         else:
             embed.add_field(name="Winrate", value="0% (Unranked)", inline=True)
-        embed.add_field(name="", value=f"[u.gg Profile](https://u.gg/lol/profile/{region_obj.region}/{summoner.name.replace(' ', '')}/overview)",
+        embed.add_field(name="", value=f"[u.gg Profile](https://u.gg/lol/profile/{region_obj.region}/{account.name.replace(' ', '')}/overview)",
                         inline=False)
         return embed
 
