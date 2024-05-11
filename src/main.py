@@ -131,18 +131,27 @@ async def test(ctx):
 
 
 @bot.command(name="update", description="Update the database to show new matches.")
-async def cmd_update(ctx, region, name):
+async def cmd_update(ctx, region_str, riot_id_str):
     """Updates the database if necessary for matches from the given user, and if they're in a team, their team members."""
-    message = await ctx.send(f"Updating matches for {name} in {region}...")
-    region_obj = Region(region)
-    summoner = await get_summoner(ctx, region_obj, name)
+    region = Region(region_str)
+    riot_id = RiotID(riot_id_str)
+    account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
+    if account is None:  # Verify the account was obtained
+        return
+    summoner = await get_summoner(ctx, region, puuid=account.puuid)
+    if summoner is None:  # Verify the summoner was obtained
+        return
+
+    message = await ctx.send(f"Updating matches for {account.name_tag}...")
     # Obtain match ids from the summoner
-    match_id_list = req_handler.get_match_id_list_by_puuid(region_obj, summoner.puuid, 100)
+    match_id_list = req_handler.get_match_id_list_by_puuid(region, summoner.puuid, 50)
     # Find which matches are not already in database
+    print(match_id_list)
     matches_to_add = db_handler.validate_matches(match_id_list)
+    print(f"Matches to add: {matches_to_add}")
     match_list = []  # Empty list to store match data
     # Populate the match_list with match data from Riot API
-    await req_handler.get_matches_from_list(region_obj, matches_to_add, match_list)
+    await req_handler.get_matches_from_list(region, matches_to_add, match_list)
     match_list = list(filter(lambda x: x is not None, match_list))
     # Add the necessary matches to the database
     db_handler.add_matches(match_list)

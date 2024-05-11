@@ -1,9 +1,11 @@
 import os
+import random
 from typing import List, Optional
 
 import requests
 import asyncio
 import httpx
+from aiolimiter import AsyncLimiter
 
 from src.league.Account import Account
 from src.league.LeagueEntry import LeagueEntry
@@ -27,6 +29,7 @@ class RiotRequestHandler:
     """
     def __init__(self):
         self.riot_key = os.getenv('RIOT_KEY')
+        self.limiter = AsyncLimiter(20/1)
 
 
     def validate_status_code(self, code) -> bool:
@@ -203,6 +206,7 @@ class RiotRequestHandler:
         try:
             tasks = [self.async_get_match(region, match_id) for match_id in match_id_list]
             match_list.extend(await asyncio.gather(*tasks))  # Await the results and extend the existing matchList
+            print("------------------------- done getting matches")
         except RiotRateLimit as e:
             print(f"Error in getMatchesFromList(): {e}")
 
@@ -211,24 +215,27 @@ class RiotRequestHandler:
         """Helper function for getMatchesFromList().
         Returns a match's data as a json object given its match id."""
         url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={self.riot_key}'
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            if response.status_code == 200:
-                print(f"Returning match data: {match_id}   |   {response.json}")
-                return response.json()
-            else:
-                print(f'Error in getMatch(): {response.status_code}, {response.json}')
-                raise RiotRateLimit
+        print("function", random.randint(1, 1000))
+        async with self.limiter:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                try:
+                    self.validate_status_code(response.status_code)
+                    return response.json()
+                except RiotAPIException as e:
+                    print(f"Error in getMatch(): {e}")
+                    return None
 
 
-    def get_match_id_list_by_account(self, region, account, num_matches) -> Optional[List[str]]:
+    def get_match_id_list_by_puuid(self, region, puuid, num_matches) -> Optional[List[str]]:
         """Obtain a given number of matchIds for a specified puuid. Returns a list of matchIds."""
-        url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/by-puuid/{account.puuid}/ids?start=0&count={num_matches}&api_key={self.riot_key}'
+        url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start=0&count={num_matches}&api_key={self.riot_key}'
         response = requests.get(url)
-        if response.status_code != 200:  # Check if request was not successful
-            print(f'Error in getMatchesByPuuid(): {response.status_code}, {response.reason}')
+        try:
+            self.validate_status_code(response.status_code)
+        except RiotAPIException as e:
+            print(f"Error in get_match_id_list_by_puuid(): {e}")
             return None
-        print("Returning list of match IDs")
         return list(response.json())
 
 
@@ -293,6 +300,7 @@ class RiotRequestHandler:
         for obj in response.json():
             team_ids.append(obj['teamId'])
         return team_ids
+
 
     def get_team_by_team_id(self, region, team_id) -> Optional[Team]:
         """Obtain team information given a region and teamId. Returns a Team object."""

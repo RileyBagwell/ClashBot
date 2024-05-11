@@ -10,7 +10,7 @@ from src.utils.RiotRequestHandler import RiotRequestHandler
 
 class DatabaseHandler:
     def __init__(self):
-        load_dotenv()  # Load ..env file for database info
+        load_dotenv()  # Load .env file for database info
         # Configure database information
         self.config = {
             'user': os.getenv('DB_USER'),
@@ -21,7 +21,6 @@ class DatabaseHandler:
 
     def get_connection(self):
         """Attempts to connect to the MySQL server and returns a MySQLConnection object if successful."""
-        print("Attempting to connect to database...")
         try:
             connection = mysql.connector.connect(**self.config)  # Create connection with the server
         except mysql.connector.Error as err:
@@ -32,7 +31,6 @@ class DatabaseHandler:
             else:
                 print(err)
         else:
-            print("Connection to database established!")
             return connection
 
 
@@ -71,8 +69,6 @@ class DatabaseHandler:
             insert_match_data = []
             insert_participant_data = []
             for match_data in match_list:
-                print(match_data)
-                print(f"match {match_data['metadata']['matchId']}")
                 if match_data is None:
                     break
                 matches_added += 1
@@ -143,12 +139,12 @@ class DatabaseHandler:
             connection.close()
 
 
-
     def validate_matches(self, match_id_list):
         """Returns an updated list of matchIds that are not present in the database from a given list of matchIds."""
         connection = self.get_connection()
         cursor = connection.cursor()
         look_for = ', '.join([f"'{element}'" for element in match_id_list])
+        db_id_list = []
         cursor.execute(f"SELECT matchId FROM matches WHERE matchId IN ({look_for});")
         db_id_list = [row[0] for row in cursor.fetchall()]
         connection.close()
