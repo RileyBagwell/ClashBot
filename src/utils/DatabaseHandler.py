@@ -178,10 +178,10 @@ class DatabaseHandler:
         return 1
 
 
-    def get_match_by_match_id(self, match_id, puuid):
+    def get_match_by_match_id(self, match_id):
         """Returns a Match object from the database if it exists."""
         connection = mysql.connector.connect(**self.config)
-        select_query = f"""SELECT p.kills FROM Participant p JOIN Info i ON p.matchId = i.matchId WHERE p.puuid = '{puuid}' AND i.matchId = '{match_id}';"""
+        select_query = f"""SELECT * FROM participants WHERE matchId='{match_id}';"""
         with connection.cursor() as cursor:
             cursor.execute(select_query)
             result = cursor.fetchall()

@@ -29,7 +29,8 @@ class RiotRequestHandler:
     """
     def __init__(self):
         self.riot_key = os.getenv('RIOT_KEY')
-        self.limiter = AsyncLimiter(20/1)
+        self.minute_limiter = AsyncLimiter(20, 120)  # 200 requests per minute
+        self.second_limiter = AsyncLimiter(1, .05)  # 20 requests per second
 
 
     def validate_status_code(self, code) -> bool:
@@ -215,12 +216,14 @@ class RiotRequestHandler:
         """Helper function for getMatchesFromList().
         Returns a match's data as a json object given its match id."""
         url = f'https://{region.route}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={self.riot_key}'
-        print("function", random.randint(1, 1000))
-        async with self.limiter:
+        async with self.second_limiter:
+            num = random.randint(1, 1000)
+            print("function", num)
             async with httpx.AsyncClient() as client:
                 response = await client.get(url)
                 try:
                     self.validate_status_code(response.status_code)
+                    print("done", num)
                     return response.json()
                 except RiotAPIException as e:
                     print(f"Error in getMatch(): {e}")

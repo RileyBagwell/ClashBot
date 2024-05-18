@@ -123,11 +123,10 @@ you a basic profile view of each player, as well as a link to their u.gg profile
 @bot.command()
 async def test(ctx):
     """Test command to quickly test the bot functionality."""
-    message = await ctx.send("Doing first task...")
-    time.sleep(2)
-    await message.edit(content="Doing second task...")
-    time.sleep(2)
-    await message.edit(content="Done!")
+    region = Region("na1")
+    riot_id = RiotID("Rye#Rye")
+    obj = db_handler.get_match_by_match_id('NA1_4990896301')
+    print(obj)
 
 
 @bot.command(name="update", description="Update the database to show new matches.")
@@ -144,7 +143,7 @@ async def cmd_update(ctx, region_str, riot_id_str):
 
     message = await ctx.send(f"Updating matches for {account.name_tag}...")
     # Obtain match ids from the summoner
-    match_id_list = req_handler.get_match_id_list_by_puuid(region, summoner.puuid, 50)
+    match_id_list = req_handler.get_match_id_list_by_puuid(region, summoner.puuid, 25)
     # Find which matches are not already in database
     print(match_id_list)
     matches_to_add = db_handler.validate_matches(match_id_list)
