@@ -1,10 +1,13 @@
 import json
 import os
+import time
+
 from dotenv import load_dotenv
 
 import mysql.connector
 from mysql.connector import errorcode
 
+from src.league.match.Participant import Participant
 from src.utils.RiotRequestHandler import RiotRequestHandler
 
 
@@ -17,12 +20,34 @@ class DatabaseHandler:
             'password': os.getenv('DB_PASS'),
             'host': os.getenv('DB_HOST'),
             'database': os.getenv('DB_BASE')}
+        self.cnx = None
+        try:
+            self.cnx = self.connect_to_mysql()
+        except Exception as e:
+            print(f"Error in DatabaseHandler.__init__(): {e}")
+            self.cnx = None
+
+
+    def connect_to_mysql(self, attempts=3, delay=2):
+        attempt = 1
+        # Reconnection routine
+        while attempt < attempts + 1:
+            try:
+                return mysql.connector.connect(**self.config)
+            except (mysql.connector.Error, IOError) as err:
+                if attempts is attempt:  # Check if all attempts have been exhausted
+                    print(f"Failed to connect, exiting without a connection: {err}")
+                    return None
+                print(f"Connection failed: {err}. Retrying ({attempt}/{attempts})...")
+            time.sleep(delay ** attempt)
+            attempt += 1  # Reconnect delay
+        return None
 
 
     def get_connection(self):
         """Attempts to connect to the MySQL server and returns a MySQLConnection object if successful."""
         try:
-            connection = mysql.connector.connect(**self.config)  # Create connection with the server
+            cnx = mysql.connector.connect(**self.config)  # Create connection with the server
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print("Access denied, check permissions or username and password.")
@@ -31,15 +56,14 @@ class DatabaseHandler:
             else:
                 print(err)
         else:
-            return connection
+            return cnx
 
 
     def add_matches(self, match_list):
         """Adds matches to the database given a list of match json objects."""
         try:
             print("Preparing to add matches to database...")
-            connection = self.get_connection()
-            cursor = connection.cursor()
+            cursor = self.cnx.cursor()
             print(f"Matches to add: {len(match_list)}")
 
             matches_added = 0
@@ -129,14 +153,14 @@ class DatabaseHandler:
             cursor.executemany(insert_participant_sql, insert_participant_data)
             print(f"Matches added: {matches_added}")
 
-            connection.commit()  # Ensure data is committed
+            self.cnx.commit()  # Ensure data is committed
             cursor.close()
-            connection.close()
+            self.cnx.close()
         except Exception as e:
             print(f"Error in addMatches(): {e}")
-            connection.rollback()
+            self.cnx.rollback()
             cursor.close()
-            connection.close()
+            self.cnx.close()
 
 
     def validate_matches(self, match_id_list):
@@ -179,12 +203,13 @@ class DatabaseHandler:
 
 
     def get_match_by_match_id(self, match_id):
-        """Returns a Match object from the database if it exists."""
-        connection = mysql.connector.connect(**self.config)
+        """Returns a Match.py object from the database if it exists."""
         select_query = f"""SELECT * FROM participants WHERE matchId='{match_id}';"""
-        with connection.cursor() as cursor:
+        with self.cnx.cursor() as cursor:
             cursor.execute(select_query)
             result = cursor.fetchall()
+        participants = []
         for row in result:
-            print(row)
-        connection.close()
+            part = Participant(row)
+            participants.append(part)
+        return participants

@@ -127,6 +127,9 @@ async def test(ctx):
     riot_id = RiotID("Rye#Rye")
     obj = db_handler.get_match_by_match_id('NA1_4990896301')
     print(obj)
+    for i in obj:
+        print(i)
+    print(obj)
 
 
 @bot.command(name="update", description="Update the database to show new matches.")

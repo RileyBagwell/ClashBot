@@ -5,7 +5,7 @@ from src.league.match.MatchTeam import MatchTeam
 from src.league.match.Participant import Participant
 
 
-class Match:
+class OldMatch:
     def __init__(self, match_dto, ):
         metadata = match_dto['metadata']
         info = match_dto['info']

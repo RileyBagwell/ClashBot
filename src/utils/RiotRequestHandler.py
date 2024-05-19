@@ -192,7 +192,7 @@ class RiotRequestHandler:
         return league_list
 
 
-    # ----- Match functions
+    # ----- Match.py functions
     async def get_matches_from_list(self, region, match_id_list, match_list):
         """Populates a given (empty) matchList to contain a list of match data as json objects.
         Top level function."""
@@ -243,7 +243,7 @@ class RiotRequestHandler:
 
 
     def get_match_by_match_id(self, region_obj, match_id)  -> Optional[Match]:
-        """Obtain match data given a region and matchId. Returns a Match json object."""
+        """Obtain match data given a region and matchId. Returns a Match.py json object."""
         url = f'https://{region_obj.route}.api.riotgames.com/lol/match/v5/matches/{match_id}?api_key={self.riot_key}'
         response = requests.get(url)
         try:
