@@ -39,24 +39,11 @@ class DatabaseHandler:
                     print(f"Failed to connect, exiting without a connection: {err}")
                     return None
                 print(f"Connection failed: {err}. Retrying ({attempt}/{attempts})...")
+            finally:
+                print("Connected to MySQL server.")
             time.sleep(delay ** attempt)
             attempt += 1  # Reconnect delay
         return None
-
-
-    def get_connection(self):
-        """Attempts to connect to the MySQL server and returns a MySQLConnection object if successful."""
-        try:
-            cnx = mysql.connector.connect(**self.config)  # Create connection with the server
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Access denied, check permissions or username and password.")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist.")
-            else:
-                print(err)
-        else:
-            return cnx
 
 
     def add_matches(self, match_list):

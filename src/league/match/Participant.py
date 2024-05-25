@@ -9,14 +9,17 @@ class Participant:
         self.participant_db_id = next(iterator)
         self.match_id = next(iterator)
         self.all_in_pings = next(iterator)
+        self.assist_me_pings = next(iterator)
         self.assists = next(iterator)
         self.baron_kills = next(iterator)
+        self.bait_pings = next(iterator)
         self.bounty_level = next(iterator)
         self.champ_experience = next(iterator)
         self.champ_level = next(iterator)
         self.champion_id = next(iterator)
         self.champion_name = next(iterator)
         self.champion_transform = next(iterator)
+        self.command_pings = next(iterator)
         self.consumables_purchased = next(iterator)
         self.damage_dealt_to_buildings = next(iterator)
         self.damage_dealt_to_objectives = next(iterator)
@@ -61,12 +64,14 @@ class Participant:
         self.magic_damage_dealt = next(iterator)
         self.magic_damage_dealt_to_champions = next(iterator)
         self.magic_damage_taken = next(iterator)
+        self.need_vision_pings = next(iterator)
         self.neutral_minions_killed = next(iterator)
         self.nexus_kills = next(iterator)
         self.nexus_takedowns = next(iterator)
         self.nexus_lost = next(iterator)
         self.objectives_stolen = next(iterator)
         self.objectives_stolen_assists = next(iterator)
+        self.on_my_way_pings = next(iterator)
         self.participant_id = next(iterator)
         self.penta_kills = next(iterator)
         self.perk_defense = next(iterator)
@@ -111,6 +116,7 @@ class Participant:
         self.total_damage_dealt_to_champions = next(iterator)
         self.total_damage_shielded_on_teammates = next(iterator)
         self.total_damage_taken = next(iterator)
+        self.total_enemy_jungle_minions_killed = next(iterator)
         self.total_heal = next(iterator)
         self.total_heals_on_teammates = next(iterator)
         self.total_minions_killed = next(iterator)
@@ -125,6 +131,7 @@ class Participant:
         self.turret_takedowns = next(iterator)
         self.turrets_lost = next(iterator)
         self.unreal_kills = next(iterator)
+        self.vision_cleared_pings = next(iterator)
         self.vision_score = next(iterator)
         self.vision_wards_bought_in_game = next(iterator)
         self.wards_killed = next(iterator)
@@ -149,5 +156,6 @@ damage_dealt_to_buildings: {self.damage_dealt_to_buildings}
 damage_dealt_to_objectives: {self.damage_dealt_to_objectives}
 damage_dealt_to_turrets: {self.damage_dealt_to_turrets}
 damage_self_mitigated: {self.damage_self_mitigated}
-danger_pings: {self.danger_pings}"""
+danger_pings: {self.danger_pings}
+win: {self.win}"""
         return str
