@@ -211,7 +211,7 @@ async def cmd_match(ctx, region_str, match_id):
     region = Region(region_str)
     if not region.is_valid:  # Validate region
         await ctx.send("Please choose a valid region!")
-        return
+        return None
     match = req_handler.get_match_by_match_id(region, match_id)
     try:
         embed = em_builder.build_embed_match_generic(ctx, match)

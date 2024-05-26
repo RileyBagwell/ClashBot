@@ -6,9 +6,24 @@ from src.league.match.Participant import Participant
 
 
 class Match:
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    def __init__(self, m):
+        iterator = iter(m)
+        self.data_version = next(iterator)
+        self.match_id = next(iterator)
+        self.game_creation = next(iterator)
+        self.game_duration = next(iterator)
+        self.game_end_timestamp = next(iterator)
+        self.game_id = next(iterator)
+        self.game_mode = next(iterator)
+        self.game_name = next(iterator)
+        self.game_start_timestamp = next(iterator)
+        self.game_type = next(iterator)
+        self.game_version = next(iterator)
+        self.map_id = next(iterator)
+        self.platform_id = next(iterator)
+        self.queue_id = next(iterator)
+        #self.teams = self.init_teams(next(iterator))
+        self.tournament_code = next(iterator)
 
     def deserialize_match(self, columns, match_tuple):
         match_data = dict(zip(columns, match_tuple))

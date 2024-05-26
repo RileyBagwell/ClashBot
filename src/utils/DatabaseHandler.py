@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector import errorcode
 
+from src.league.match.Match import Match
 from src.league.match.Participant import Participant
 from src.utils.RiotRequestHandler import RiotRequestHandler
 
@@ -191,12 +192,17 @@ class DatabaseHandler:
 
     def get_match_by_match_id(self, match_id):
         """Returns a Match.py object from the database if it exists."""
-        select_query = f"""SELECT * FROM participants WHERE matchId='{match_id}';"""
+        select_query_match = f"""SELECT * FROM matches WHERE matchId='{match_id}';"""
+        select_query_participants = f"""SELECT * FROM participants WHERE matchId='{match_id}';"""
         with self.cnx.cursor() as cursor:
-            cursor.execute(select_query)
-            result = cursor.fetchall()
+            cursor.execute(select_query_match)
+            match_result = cursor.fetchall()
+        match = Match()
+        with self.cnx.cursor() as cursor:
+            cursor.execute(select_query_participants)
+            participant_result = cursor.fetchall()
         participants = []
-        for row in result:
+        for row in participant_result:
             part = Participant(row)
             participants.append(part)
         return participants
