@@ -14,7 +14,6 @@ from src.utils.RiotRequestHandler import RiotRequestHandler
 
 class DatabaseHandler:
     def __init__(self):
-        load_dotenv()  # Load .env file for database info
         # Configure database information
         self.config = {
             'user': os.getenv('DB_USER'),
@@ -27,6 +26,9 @@ class DatabaseHandler:
         except Exception as e:
             print(f"Error in DatabaseHandler.__init__(): {e}")
             self.cnx = None
+        else:
+            print("Connected to database.")
+
 
 
     def connect_to_mysql(self, attempts=3, delay=2):
@@ -40,8 +42,6 @@ class DatabaseHandler:
                     print(f"Failed to connect, exiting without a connection: {err}")
                     return None
                 print(f"Connection failed: {err}. Retrying ({attempt}/{attempts})...")
-            finally:
-                print("Connected to MySQL server.")
             time.sleep(delay ** attempt)
             attempt += 1  # Reconnect delay
         return None
