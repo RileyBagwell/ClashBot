@@ -25,6 +25,7 @@ bot.remove_command('help')  # Remove the default help command
 
 # Other set up tasks
 load_dotenv()
+print("Environment variables loaded")
 req_handler = RiotRequestHandler()
 db_handler = DatabaseHandler()
 em_builder = EmbedBuilder()
@@ -96,6 +97,12 @@ async def get_account(ctx, region: Region, puuid=None, riot_id=None) -> Optional
 
 
 # --- Bot Commands
+@bot.command(name="ping", description="Have the bot respond with a pong.")
+async def cmd_ping(ctx):
+    """Have the bot respond with a pong."""
+    await ctx.send('Pong!')
+
+
 @bot.command(name="commands", description="Display all commands and information.")
 async def cmd_commands(ctx):
     """Sends a list of commands and what they do."""
@@ -169,9 +176,13 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
         region_str: The region of the summoner as a string
         riot_id_str: The Riot ID of the summoner as a string (Name#Tag)
     """
+    print(0)
     region = Region(region_str)
+    print(1)
     riot_id = RiotID(riot_id_str)
+    print(2)
     account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
+    print(3)
     if account is None:  # Verify the account was obtained
         return
     summoner = await get_summoner(ctx, region, puuid=account.puuid)
