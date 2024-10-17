@@ -176,13 +176,9 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
         region_str: The region of the summoner as a string
         riot_id_str: The Riot ID of the summoner as a string (Name#Tag)
     """
-    print(0)
     region = Region(region_str)
-    print(1)
     riot_id = RiotID(riot_id_str)
-    print(2)
     account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
-    print(3)
     if account is None:  # Verify the account was obtained
         return
     summoner = await get_summoner(ctx, region, puuid=account.puuid)
@@ -195,15 +191,19 @@ async def cmd_summoner(ctx, region_str, riot_id_str):
 
 
 @bot.command(name="matches", description="Return a list of recent match ids.")
-async def cmd_matches(ctx, debug, region_str, riot_id_str, num_matches):
+async def cmd_matches(ctx, region_str, riot_id_str, num_matches):
     """Sends a list of a given number of match ids from a given player.
     The debug flag is used to run the function with test data w/o a database interaction."""
+    print(0)
     region = Region(region_str)
     riot_id = RiotID(riot_id_str)
+    print(1)
     if int(num_matches) < 1 or int(num_matches) > 100:  # Check for a valid number of matches
         await ctx.send("Please enter a number between 1 and 100 (inclusive)!")
         return
-    account = await get_account(ctx, region, riot_id)  # Get account object
+    print(2)
+    account = await get_account(ctx, region, riot_id=riot_id)  # Get account object
+    print(3)
     if account is None:  # Verify the account was obtained
         return
     # Logic:

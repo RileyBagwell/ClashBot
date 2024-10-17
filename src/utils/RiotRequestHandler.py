@@ -61,6 +61,7 @@ class RiotRequestHandler:
     # ----- Account functions
     def get_account_by_puuid(self, region: Region, puuid: str) -> Optional[Account]:
         url = f"https://{region.route}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}?api_key={self.riot_key}"
+        print(puuid)
         response = requests.get(url)
         try:
             self.validate_status_code(response.status_code)
