@@ -1,6 +1,8 @@
 import datetime
 import json
 from typing import Optional
+import os
+from pathlib import Path
 
 import discord
 
@@ -10,11 +12,11 @@ from src.utils.DDragonRequestHandler import DDragonRequestHandler
 class EmbedBuilder:
     def __init__(self):
         """Initializes game_modes, game_types, maps, and queues as lists of dictionaries from the files."""
-        file_path = '../src/league/files/'
-        self.game_modes = json.load(open(file_path + 'gameModes.json'))
-        self.game_types = json.load(open(file_path + 'gameTypes.json'))
-        self.maps = json.load(open(file_path + 'maps.json'))
-        self.queues = json.load(open(file_path + 'queues.json'))
+        file_path = Path(__file__).parent.parent / 'league' / 'files'
+        self.game_modes = json.load(open(file_path / 'gameModes.json'))
+        self.game_types = json.load(open(file_path / 'gameTypes.json'))
+        self.maps = json.load(open(file_path / 'maps.json'))
+        self.queues = json.load(open(file_path / 'queues.json'))
 
 
     # ----- Helper Function
