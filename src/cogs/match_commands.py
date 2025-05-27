@@ -10,9 +10,10 @@ from src.utils.RiotRequestHandler import RiotRequestHandler
 class MatchCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.req_handler = RiotRequestHandler()
-        self.db_handler = DatabaseHandler()
-        self.em_builder = EmbedBuilder()
+        # Use shared resources from the bot instance
+        self.req_handler = bot.req_handler
+        self.db_handler = bot.db_handler
+        self.em_builder = bot.em_builder
 
     @commands.command(name="matches", description="Return a list of recent match ids.")
     async def cmd_matches(self, ctx, region_str, riot_id_str, num_matches):

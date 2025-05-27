@@ -12,9 +12,10 @@ from src.utils.RiotRequestHandler import RiotRequestHandler
 class SummonerCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.req_handler = RiotRequestHandler()
-        self.db_handler = DatabaseHandler()
-        self.em_builder = EmbedBuilder()
+        # Use shared resources from the bot instance
+        self.req_handler = bot.req_handler
+        self.db_handler = bot.db_handler
+        self.em_builder = bot.em_builder
 
     async def get_summoner(self, ctx, region: Region, account=None, puuid=None, summ_id=None) -> Optional[Summoner]:
         """Obtains a summoner from the API and deserializes it, and returns it as a Summoner object. Validates that the
