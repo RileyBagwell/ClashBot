@@ -15,13 +15,13 @@ class UtilityCommands(commands.Cog):
     async def cmd_commands(self, ctx):
         """Sends a list of commands and what they do."""
         commands_str = f"""**__Commands:__**
-            **{self.prefix}commands**: Display this message
-            **{self.prefix}summoner [region] [riot id]**: Get a summoner's information given their Riot ID
-            **{self.prefix}team [region] [riot id]**: Get a team given a summoner's Riot ID
-            **{self.prefix}tournaments [region]**: Show active or upcoming tournaments for a given region
-            **{self.prefix}matches [region] [name] [numMatches]**: Get a list of a summoner's match ids
-            **{self.prefix}match [region] [match_id]**: Get detailed information about a specific match
-            **{self.prefix}update [region] [riot id]**: Update the database with recent matches"""
+**{self.prefix}commands**: Display this message
+**{self.prefix}summoner [region] [riot id]**: Get a summoner's information given their Riot ID
+**{self.prefix}team [region] [riot id]**: Get a team given a summoner's Riot ID
+**{self.prefix}tournaments [region]**: Show active or upcoming tournaments for a given region
+**{self.prefix}matches [region] [name] [numMatches]**: Get a list of a summoner's match ids
+**{self.prefix}match [region] [match_id]**: Get detailed information about a specific match
+**{self.prefix}update [region] [riot id]**: Update the database with recent matches"""
         await ctx.send(commands_str)
 
     @commands.command(name="help", description="Display information about and how to use the bot.")
