@@ -23,4 +23,4 @@ class Summoner:
 
     def __str__(self):
         """Returns a neatly formatted string containing summoner information"""
-        return f'Level: {self.summoner_level} puuid: {self.puuid} id: {self.id}'
+        return f'Level {self.summoner_level} (ID: {self.id})'

@@ -136,3 +136,62 @@ class EmbedBuilder:
         embed.add_field(name="Tournament Code", value=match.tournament_code, inline=True)
         embed.set_footer(text=f"{time} utc")
         return embed
+
+
+    def build_embed_match(self, ctx, match):
+        """Returns an embed for a given match."""
+        try:
+            time = datetime.datetime.utcfromtimestamp(match.game_start_timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S')
+        except Exception as e:
+            print(f"Error in build_embed_match(): {e}")
+            time = "Error"
+
+        embed = discord.Embed(
+            title=f"Match {match.match_id}",
+            colour=0x4a5691
+        )
+
+        # Game Info
+        embed.add_field(name="Game Mode", value=match.game_mode, inline=True)
+        embed.add_field(name="Game Type", value=match.game_type, inline=True)
+        embed.add_field(name="Duration", value=f"{match.game_duration // 60}:{match.game_duration % 60:02d}", inline=True)
+
+        # Map and Queue Info
+        for obj in self.maps:
+            if obj['mapId'] == match.map_id:
+                map_name = obj['mapName']
+                break
+        else:
+            map_name = f"Map {match.map_id}"
+
+        for obj in self.queues:
+            if obj['queueId'] == match.queue_id:
+                queue_name = obj['description']
+                break
+        else:
+            queue_name = f"Queue {match.queue_id}"
+
+        embed.add_field(name="Map", value=map_name, inline=True)
+        embed.add_field(name="Queue", value=queue_name, inline=True)
+        embed.add_field(name="Version", value=match.game_version, inline=True)
+
+        # Participants
+        if hasattr(match, 'participants'):
+            # Team 1
+            team1_text = ""
+            team2_text = ""
+            for p in match.participants:
+                player_name = p.summoner_name if p.summoner_name else p.riot_id_game_name if p.riot_id_game_name else "Unknown"
+                kda_text = f"**{player_name}** ({p.champion_name}): {p.kills}/{p.deaths}/{p.assists}\n"
+                if p.team_id == 100:  # Blue team
+                    team1_text += kda_text
+                else:  # Red team
+                    team2_text += kda_text
+            
+            if team1_text:
+                embed.add_field(name="Blue Team", value=team1_text, inline=True)
+            if team2_text:
+                embed.add_field(name="Red Team", value=team2_text, inline=True)
+
+        embed.set_footer(text=f"{time} UTC")
+        return embed
