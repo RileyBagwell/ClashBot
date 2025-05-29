@@ -1,0 +1,11 @@
+2025-05-28 13:44:37,551 - clashbot - INFO - Successfully initialized bot resources
+2025-05-28 13:44:37,993 - clashbot - INFO - Loaded src.cogs.utility_commands
+2025-05-28 13:44:37,994 - clashbot - INFO - Loaded src.cogs.summoner_commands
+2025-05-28 13:44:37,997 - clashbot - INFO - Loaded src.cogs.match_commands
+2025-05-28 13:44:37,998 - clashbot - INFO - Loaded src.cogs.team_commands
+2025-05-28 13:48:17,017 - clashbot - INFO - Matches command invoked by ry3ry3bread for rye#rye in na1
+2025-05-28 13:48:17,555 - clashbot - DEBUG - Fetching 10 matches for Rye#Rye
+2025-05-28 13:48:18,164 - clashbot - INFO - Successfully retrieved 10 matches for Rye#Rye
+2025-05-28 13:49:33,932 - clashbot - INFO - Matches command invoked by ry3ry3bread for rye#rye in na1
+2025-05-28 13:49:34,248 - clashbot - DEBUG - Fetching 100 matches for Rye#Rye
+2025-05-28 13:49:34,750 - clashbot - INFO - Successfully retrieved 100 matches for Rye#Rye

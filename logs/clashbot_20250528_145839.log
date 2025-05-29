@@ -1,0 +1,16 @@
+2025-05-28 14:58:39,779 - clashbot - INFO - Successfully initialized bot resources
+2025-05-28 14:58:40,081 - clashbot - INFO - Loaded src.cogs.utility_commands
+2025-05-28 14:58:40,082 - clashbot - INFO - Loaded src.cogs.summoner_commands
+2025-05-28 14:58:40,083 - clashbot - INFO - Loaded src.cogs.match_commands
+2025-05-28 14:58:40,087 - clashbot - INFO - Loaded src.cogs.team_commands
+2025-05-28 14:58:47,551 - clashbot - INFO - Match command invoked by ry3ry3bread for match NA1_5282802071 in na1
+2025-05-28 14:58:47,551 - clashbot - DEBUG - Attempting to fetch match NA1_5282802071 from database
+2025-05-28 14:58:47,553 - clashbot - DEBUG - Match NA1_5282802071 not found in database, fetching from API
+2025-05-28 14:58:47,844 - clashbot - DEBUG - Storing match NA1_5282802071 in database
+2025-05-28 14:58:47,846 - clashbot - DEBUG - Building embed for match NA1_5282802071
+2025-05-28 14:58:47,846 - clashbot - ERROR - An error occurred while processing the match command: 'EmbedBuilder' object has no attribute 'build_embed_match'
+Traceback (most recent call last):
+  File "C:\Users\riley\Desktop\ClashBot\ClashBot\src\cogs\match_commands.py", line 117, in cmd_match
+    embed = self.em_builder.build_embed_match(ctx, match_data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'EmbedBuilder' object has no attribute 'build_embed_match'

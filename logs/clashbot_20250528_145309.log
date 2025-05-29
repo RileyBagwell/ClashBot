@@ -1,0 +1,35 @@
+2025-05-28 14:53:09,437 - clashbot - INFO - Successfully initialized bot resources
+2025-05-28 14:53:09,732 - clashbot - INFO - Loaded src.cogs.utility_commands
+2025-05-28 14:53:09,736 - clashbot - INFO - Loaded src.cogs.summoner_commands
+2025-05-28 14:53:09,737 - clashbot - INFO - Loaded src.cogs.match_commands
+2025-05-28 14:53:09,741 - clashbot - ERROR - Failed to load src.cogs.team_commands: Extension 'src.cogs.team_commands' raised an error: NameError: name 'Account' is not defined
+2025-05-28 14:53:16,740 - clashbot - INFO - Summoner command invoked by ry3ry3bread for rye#rye in na1
+2025-05-28 14:53:16,740 - clashbot - DEBUG - Fetching account info for rye#rye
+2025-05-28 14:53:16,740 - clashbot - DEBUG - Getting account by Riot ID: rye#rye
+2025-05-28 14:53:17,327 - clashbot - DEBUG - Fetching summoner info for Rye#Rye
+2025-05-28 14:53:17,327 - clashbot - DEBUG - Getting summoner by PUUID: Yt5_ZRikaBlMbxx5Iy_21eAM-c3xi41pjF1FmrKQy2Ki4EkEBOhsd6e1ZhYI8fqTIVO8d5J3Uv9UIA
+2025-05-28 14:53:17,839 - clashbot - DEBUG - Fetching league entries for Rye#Rye
+2025-05-28 14:53:18,172 - clashbot - DEBUG - Building embed for Rye#Rye
+2025-05-28 14:53:18,589 - clashbot - INFO - Successfully displayed summoner info for Rye#Rye
+2025-05-28 14:54:54,937 - clashbot - INFO - Matches command invoked by ry3ry3bread for Rye#Rye in na1
+2025-05-28 14:54:55,317 - clashbot - DEBUG - Fetching 10 matches for Rye#Rye
+2025-05-28 14:54:55,829 - clashbot - INFO - Successfully retrieved 10 matches for Rye#Rye
+2025-05-28 14:55:00,455 - clashbot - INFO - Match command invoked by ry3ry3bread for match NA1_5282802071 in na1
+2025-05-28 14:55:00,455 - clashbot - DEBUG - Attempting to fetch match NA1_5282802071 from database
+2025-05-28 14:55:00,456 - clashbot - ERROR - An error occurred while processing the match command: Match.__init__() missing 1 required positional argument: 'm'
+Traceback (most recent call last):
+  File "C:\Users\riley\Desktop\ClashBot\ClashBot\src\cogs\match_commands.py", line 100, in cmd_match
+    match_data = self.db_handler.get_match_by_match_id(match_id)
+  File "C:\Users\riley\Desktop\ClashBot\ClashBot\src\utils\DatabaseHandler.py", line 200, in get_match_by_match_id
+    match = Match()
+TypeError: Match.__init__() missing 1 required positional argument: 'm'
+2025-05-28 14:57:39,744 - clashbot - INFO - Match command invoked by ry3ry3bread for match NA1_5282802071 in na1
+2025-05-28 14:57:39,744 - clashbot - DEBUG - Attempting to fetch match NA1_5282802071 from database
+2025-05-28 14:57:39,746 - clashbot - ERROR - An error occurred while processing the match command: Match.__init__() missing 1 required positional argument: 'm'
+Traceback (most recent call last):
+  File "C:\Users\riley\Desktop\ClashBot\ClashBot\src\cogs\match_commands.py", line 100, in cmd_match
+    match_data = self.db_handler.get_match_by_match_id(match_id)
+  File "C:\Users\riley\Desktop\ClashBot\ClashBot\src\utils\DatabaseHandler.py", line 200, in get_match_by_match_id
+    match_result = cursor.fetchall()
+        ^^^^^^^
+TypeError: Match.__init__() missing 1 required positional argument: 'm'
