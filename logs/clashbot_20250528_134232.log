@@ -1,5 +1,0 @@
-2025-05-28 13:42:32,111 - clashbot - INFO - Successfully initialized bot resources
-2025-05-28 13:42:32,547 - clashbot - INFO - Loaded src.cogs.utility_commands
-2025-05-28 13:42:32,548 - clashbot - INFO - Loaded src.cogs.summoner_commands
-2025-05-28 13:42:32,551 - clashbot - ERROR - Failed to load src.cogs.match_commands: Extension 'src.cogs.match_commands' raised an error: NameError: name 'Account' is not defined
-2025-05-28 13:42:32,552 - clashbot - INFO - Loaded src.cogs.team_commands
