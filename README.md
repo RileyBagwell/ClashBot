@@ -9,6 +9,15 @@ ClashBot is a Discord bot designed to enhance the League of Legends Clash tourna
 - Automated data retrieval from Riot Games API
 - User-friendly command interface with `##` prefix
 
+### Example Embeds
+The bot provides detailed information through Discord embeds:
+
+![Summoner Information](assets/images/clashbot_summoner_embed.png)\
+*Detailed summoner information and statistics*
+
+![Match Information](assets/images/clashbot_match_embed.png)\
+*Comprehensive match history and performance data*
+
 ## Prerequisites
 - Python 3.8 or higher
 - Discord account and bot token
