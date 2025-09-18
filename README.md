@@ -57,34 +57,3 @@ python main.py
 ```
 
 2. Once the bot is running, you can use it in your Discord server with the `##` command prefix.
-
-## Project Structure
-```
-ClashBot/
-├── main.py           # Bot entry point and setup
-├── src/             # Source code directory
-│   ├── ClashBot.py  # Main bot implementation
-│   └── league/      # League of Legends API integration
-├── tests/           # Test files
-├── logs/            # Log files
-└── requirements.txt # Project dependencies
-```
-
-## Development
-- The bot is built using discord.py library
-- Uses Python's asyncio for asynchronous operations
-- Implements rate limiting for Riot Games API compliance
-- Stores API response templates in `src/league/file` directory
-
-## Contributing
-1. Fork the repository
-2. Create a new branch for your feature
-3. Submit a pull request with a description of your changes
-
-## License
-[Add your license information here]
-
-## Acknowledgments
-- Riot Games API
-- Discord.py library
-- All contributors and testers
